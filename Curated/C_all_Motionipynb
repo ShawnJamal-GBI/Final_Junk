@@ -1,0 +1,3508 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Done\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import re\n",
+    "from ast import literal_eval\n",
+    "from tqdm import tqdm\n",
+    "from ftfy import fix_text\n",
+    "# from util import UnitConversion, mapping_list_values, perl_to_posix\n",
+    "from groupby_toolz import enrich_db, gcloud\n",
+    "pd.set_option('display.max_colwidth', None)\n",
+    "pd.options.display.max_rows = 500\n",
+    "from flashtext import KeywordProcessor\n",
+    "from groupby_toolz import enrich_db, gcloud\n",
+    "pd.set_option('display.max_colwidth', None)\n",
+    "pd.options.display.max_columns = None\n",
+    "pd.options.display.max_rows = 500\n",
+    "import ast\n",
+    "import warnings\n",
+    "warnings.filterwarnings('ignore')\n",
+    "from natsort import natsorted\n",
+    "def query_from_file(file_name, params):\n",
+    "    with open(f'{file_name}', mode='r') as f:\n",
+    "        text = f.read()\n",
+    "        query = text.format(**params)\n",
+    "        return enrich_db(query)\n",
+    "def re_extract(pattern, txt):\n",
+    "    matches = re.findall(pattern, txt)\n",
+    "    tmp_matches = []\n",
+    "    for match in matches:\n",
+    "        for tup in match:\n",
+    "            if tup != '':\n",
+    "                tmp_matches.append(tup)\n",
+    "    return list(set(tmp_matches))\n",
+    "import time\n",
+    "today = time.strftime(\"%Y_%m_%d\")\n",
+    "\n",
+    "import ast\n",
+    "def remove_duplicates(A):\n",
+    "    [A.pop(count) for count,elem in enumerate(A) if A.count(elem)!=1]\n",
+    "    return A\n",
+    "\n",
+    "# importing the sys module\n",
+    "import sys        \n",
+    " \n",
+    "# appending the directory of mod.py\n",
+    "# in the sys.path list\n",
+    "sys.path.append('C:/Users/groupby/Documents/GitHub/SQL Extract And Apply') \n",
+    "from enrich_dimensions.rounds import rounds, rounding_inch_feet,rounding_lbs,rounding_w,rounding_oz, rounding_lb,rounding_gal, re_extract, curate, round_string_float, clean_data,reg_ex,rounding_period_after_unit \n",
+    "from enrich_dimensions.params import parameters, query_from_file\n",
+    "from enrich_dimensions.query_file import query_from_file \n",
+    "from enrich_dimensions.custom import custom_field \n",
+    "\n",
+    "def three(usa,reg):\n",
+    "    trip=fr'''(?i){reg}|()''' \n",
+    "    usa['m_name']=usa['product_name'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "    usa['m_desc']=usa['long_desc'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "    usa['m_custom']=usa['custom_fields'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "    imported=usa[(usa['m_name'].astype(str)!='[]')|(usa['m_desc'].astype(str)!='[]')|(usa['m_custom'].astype(str)!='[]')]\n",
+    "    impor=usa[(usa['m_name'].astype(str)=='[]')&(usa['m_desc'].astype(str)=='[]')&(usa['m_custom'].astype(str)=='[]')]\n",
+    "    print('values: '+str(len(imported)))\n",
+    "    print('no values: '+str(len(impor)))\n",
+    "    return imported,impor\n",
+    "\n",
+    "print('Done')\n",
+    "# rounding(inside, 'Q:inside_diameter','a-eghj-lo-su-z*')\n",
+    "\n",
+    "# .apply(lambda x: re.sub(r'(\\s?(?<!\")(?=\\]))|(\"\")','\"',str(x))).apply(lambda x: re.sub(r'(\"\")','\"',str(x))).apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)])).apply(lambda x: natsorted(x)).apply(lambda x: re.sub(r'''(((?:\"|')?\\s?\\,\\s?(?!\")(?:')?))''','\",\"',str(x))).apply(lambda x: re.sub(r'''((?<=\\[)\\s?'\\s?)|(\\s?'\\s?(?=\\]))|(\\s?'\\s?(?=\\,))|((?<=\\,)\\s?'\\s?)''','\"',str(x)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Motion"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "start\n"
+     ]
+    }
+   ],
+   "source": [
+    "customer_id = '144'\n",
+    "customer_name='%motionapac%'\n",
+    "dateszs='2001-10-01'\n",
+    "dateszsz='2023-12-30'\n",
+    "params = {'customer_id': customer_id,\n",
+    "          'customer_name':customer_name,\n",
+    "         'dateszs':dateszs,\n",
+    "         'dateszsz':dateszsz}\n",
+    "print('start')\n",
+    "# dfs = query_from_file(file_name='../query/curated_all_attributes_date.sql', params=params)\n",
+    "dfs = query_from_file(file_name='../query/curated_all_attributes_date_dates.sql', params=params)\n",
+    "print(len(dfs))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "start\n"
+     ]
+    }
+   ],
+   "source": [
+    "customer_id = '144'\n",
+    "customer_name='%motionapac%'\n",
+    "dateszs='2002-08-11'\n",
+    "attribut='material'\n",
+    "curation_col = f'Q:{attribut}'\n",
+    "params = {'customer_id': customer_id,\n",
+    "          'customer_name':customer_name,\n",
+    "         'dateszs':dateszs,\n",
+    "         'attribut':attribut}\n",
+    "\n",
+    "print('start')\n",
+    "bucket_value = query_from_file(file_name='../query/Bucket_Value_Strategy.sql', params=params)\n",
+    "\n",
+    "lst=bucket_value['buckets'].explode().value_counts().reset_index()['index'].to_list()#.sort()\n",
+    "# lst.sort()\n",
+    "# lst"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# xyz=dfs.sort_values(by='external_id')\n",
+    "# a=xyz[0:500000]#[(dfs['external_id']=='10888211')|(dfs['external_id']=='10000012')|(dfs['external_id']=='11101739')]\n",
+    "# b=xyz[500000:1000000]\n",
+    "# c=xyz[1000000:1500000]\n",
+    "# d=xyz[1500000:2000000]\n",
+    "# e=xyz[2000000:2500000]\n",
+    "# f=xyz[2500000:3000000]\n",
+    "# g=xyz[3000000:3500000]\n",
+    "# h=xyz[3500000:4000000]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# num=3\n",
+    "\n",
+    "# two=[]\n",
+    "# lst=a['external_id'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# print(len(lst))\n",
+    "# for i in range(len(lst)):\n",
+    "# #     print(lst[i])\n",
+    "#     one=a[a['external_id'].astype(str)==lst[i]]['value'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# #     print(one)\n",
+    "#     if len(one)<num:\n",
+    "#         two.append(lst[i])\n",
+    "        \n",
+    "# three=[]    \n",
+    "# lst=b['external_id'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# print(len(lst))\n",
+    "# for i in range(len(lst)):\n",
+    "# #     print(lst[i])\n",
+    "#     one=b[b['external_id'].astype(str)==lst[i]]['value'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# #     print(one)\n",
+    "#     if len(one)<num:\n",
+    "#         three.append(lst[i])\n",
+    "        \n",
+    "\n",
+    "        \n",
+    "        \n",
+    "# four=[]       \n",
+    "# lst=c['external_id'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# print(len(lst))\n",
+    "# for i in range(len(lst)):\n",
+    "# #     print(lst[i])\n",
+    "#     one=c[c['external_id'].astype(str)==lst[i]]['value'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# #     print(one)\n",
+    "#     if len(one)<num:\n",
+    "#         four.append(lst[i])\n",
+    "        \n",
+    "        \n",
+    "\n",
+    "        \n",
+    "# five=[]       \n",
+    "# lst=d['external_id'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# print(len(lst))\n",
+    "# for i in range(len(lst)):\n",
+    "# #     print(lst[i])\n",
+    "#     one=d[d['external_id'].astype(str)==lst[i]]['value'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# #     print(one)\n",
+    "#     if len(one)<num:\n",
+    "#         five.append(lst[i])\n",
+    "\n",
+    "        \n",
+    "        \n",
+    "        \n",
+    "# six=[]\n",
+    "# lst=e['external_id'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# print(len(lst))\n",
+    "# for i in range(len(lst)):\n",
+    "# #     print(lst[i])\n",
+    "#     one=e[e['external_id'].astype(str)==lst[i]]['value'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# #     print(one)\n",
+    "#     if len(one)<num:\n",
+    "#         six.append(lst[i])\n",
+    "\n",
+    "        \n",
+    "# seven=[]      \n",
+    "# lst=f['external_id'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# print(len(lst))\n",
+    "# for i in range(len(lst)):\n",
+    "# #     print(lst[i])\n",
+    "#     one=f[f['external_id'].astype(str)==lst[i]]['value'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# #     print(one)\n",
+    "#     if len(one)<num:\n",
+    "#         seven.append(lst[i])\n",
+    "\n",
+    "        \n",
+    "        \n",
+    "# eight=[]       \n",
+    "# lst=g['external_id'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# print(len(lst))\n",
+    "# for i in range(len(lst)):\n",
+    "# #     print(lst[i])\n",
+    "#     one=g[g['external_id'].astype(str)==lst[i]]['value'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "# #     print(one)\n",
+    "#     if len(one)<num:\n",
+    "#         eight.append(lst[i])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# total=two+three+four+five+seven+eight\n",
+    "# tot=pd.DataFrame(total)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tots=pd.read_csv('second_set_Motion_external_id.csv')\n",
+    "lst=tots.reset_index()\n",
+    "lst['IDS']=lst['0'].astype(str)\n",
+    "junk_tot=lst['IDS'].to_list()\n",
+    "\n",
+    "eid=pd.read_csv('External_IDS_motion.csv')\n",
+    "lst=eid.reset_index()\n",
+    "lst['IDS']=lst['10082311'].astype(str)\n",
+    "junk_eid=lst['IDS'].to_list()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_total=dfs[(dfs.external_id.isin(junk_eid+junk_tot))]\n",
+    "print(len(df_total))\n",
+    "\n",
+    "fill_dict = df_total.groupby('external_id')['buckets'].last().to_dict()\n",
+    "df_total['buckets'] = df_total['buckets'].fillna(df_total['external_id'].map(fill_dict))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_total['attribute'].explode().value_counts()[0:10]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Material"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "56226\n",
+      "56226\n"
+     ]
+    }
+   ],
+   "source": [
+    "material=df_total.loc[(df_total['attribute'].astype(str)=='material')]\n",
+    "pat='''(?i)((?:Acrylic|alloy|alloy.?steel|steel|aluminum|Anodized|aramid|bamboo|bi.?metal|brass|bronze|canvas|carbide|carbon(?:.?fiber|steel)?|cast(?:.?iron|.?steel)|ceramic|chloroprene|chrome|composite|copper|cotton|elastane|elastic|emery|engineer(?:ing|ed).?wood|EPDM|fabric|(?:faux.?)?leather|fiber(?:.?glass|.?stone)|flannel|fleece|foam|galvanized.?steel|gel|glass(?:.?fiber)?|graphite|HDPE|HDPU|high.?density.?foam|iron|kevlar|latex|linen|metal|natural.?material|neoprene|nickel|nitrile|nylon|paper|plastic|poly.{0,5}|PET|terephthalate|pvc|chloride|porcelain|PTFE|Resin|Rubber|silica|silicon(?:.?carbide)|silicone|spandex|stainless.?steel|synthetic|teflon|thermiculite|thermo.?plastic|titanium|TPE|TPU|Tungsten(?:.?carbide)?|Urethane|vinyl|wood|wool|zinc))|()'''\n",
+    "\n",
+    "material['match']=material['long_desc'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "mat=material[(material.astype(str)!='[]')&(material.astype(str)!='nan')&(material.astype(str)!='NaN')]\n",
+    "\n",
+    "print(len(material))\n",
+    "print(len(mat))\n",
+    "\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "12514\n"
+     ]
+    }
+   ],
+   "source": [
+    "matches=mat[~((mat['match'].astype(str)=='nan')|(mat['match'].astype(str)=='[]'))]\n",
+    "print(len(matches))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "unique_buckets=set(bucket_value['buckets'])\n",
+    "unique_bucket_list=pd.DataFrame(unique_buckets)[0].to_list()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Nailers, Staplers, & Riveting Tools\n",
+      "['Metal', 'Carbon']\n",
+      "\n",
+      "Belts\n",
+      "[]\n",
+      "\n",
+      "Brushes/Rollers/Applicators\n",
+      "['Stainless Steel', 'Stainless Steel', 'Carbon', 'Plastic', 'Wood', 'Plastic', 'Stainless Steel', 'Iron', 'Polyester', 'Steel', 'Wood', 'Steel', 'Stainless\\xa0Steel', 'Metal', 'Metal', 'Foam', 'Leather', 'Stainless Steel']\n",
+      "\n",
+      "Ramps, Conveyors & Connectors\n",
+      "['Rubber', 'Polypropy', 'Polyvinyl', 'Thermoplastic', 'Polycarbo', 'Pvc', 'Steel', 'Chloride', 'Stainless Steel', 'Resin']\n",
+      "\n",
+      "Occupational Health & Safety Footwear Replacement Parts & Accessories\n",
+      "[]\n",
+      "\n",
+      "Clasps & Latches\n",
+      "['Chrome', 'Stainless Steel']\n",
+      "\n",
+      "Calipers, Micrometers, & Gauges\n",
+      "['Glass', 'Ptfe', 'Stainless Steel', 'Steel', 'Stainless Steel', 'Pet', 'Plastic', 'Iron', 'Foam', 'Metal', 'Chrome', 'Carbon', 'Metal', 'Paper', 'Rubber', 'Steel', 'Metal', 'Wood', 'Rubber', 'Brass', 'Polyisopr', 'Rubber', 'Carbide', 'Nylon', 'Aluminum', 'Thermo Plastic', 'Brass', 'Tpu', 'Plastic', 'Leather', 'Steel', 'Urethane', 'Pet', 'Foam', 'Thermiculite', 'Polyrib G', 'Plastic', 'Latex', 'Carbide', 'Wood', 'Poly Wrap']\n",
+      "\n",
+      "Shelves & Shelving Units\n",
+      "[]\n",
+      "\n",
+      "Conduit\n",
+      "['Steel']\n",
+      "\n",
+      "Spill Containment\n",
+      "[]\n",
+      "\n",
+      "Anchoring Devices & Rope Grabs\n",
+      "['Pet', 'Metal', 'Stainless Steel']\n",
+      "\n",
+      "Food Storage Canisters/Containers & Accessories\n",
+      "[]\n",
+      "\n",
+      "Sealants\n",
+      "['Ptfe', 'Teflon', 'Polytetra', 'Nitrile', 'Rubber', 'Aramid', 'Glass', 'Epdm', 'Graphite', 'Neoprene', 'Thermiculite', 'Thermiculite', 'Rubber', 'Nitrile', 'Aramid', 'Paper', 'Glass', 'Acrylic', 'Paper', 'Silicone', 'Plastic', 'Vinyl', 'Foam', 'Cotton', 'Metal', 'Copper', 'Leather', 'Metal', 'Steel', 'Polypropy', 'Kevlar', 'Copper', 'Ceramic', 'Fabric', 'Aluminum', 'Polyester', 'Gel', 'Polyisopr', 'Polyester', 'Elastic', 'Steel', 'Acrylic', 'Nickel', 'Carbon', 'Pvc', 'Polyacryl', 'Polyester', 'Polyvinyl', 'Tpu', 'Graphite', 'Silicone', 'Rubber', 'Chloride', 'Urethane', 'Poly Pro ', 'Brass', 'Wood', 'Stainless Steel', 'Resin', 'Polyprop ', 'Pet']\n",
+      "\n",
+      "Occupational Health & Safety Lower Body Wear\n",
+      "['Cotton', 'Chloride', 'Elastic', 'Pvc', 'Polyvinyl']\n",
+      "\n",
+      "Hoses\n",
+      "['Pvc', 'Polyvinyl', 'Chloride', 'Nitrile', 'Silicone', 'Neoprene', 'Pet', 'Steel', 'Rubber', 'Teflon', 'Polytetra', 'Plastic', 'Ptfe', 'Carbon', 'Glass', 'Pet', 'Silicone', 'Fabric', 'Synthetic', 'Stainless Steel', 'Rubber', 'Epdm', 'Steel', 'Vinyl', 'Thermo Plastic', 'Metal', 'Brass', 'Polypropy', 'Iron', 'Plastic', 'Leather', 'Brass', 'Poly Pack', 'Poly-Wrap', 'Poly 1/4 ', 'Thermoplastic', 'Nylon', 'Paper', 'Rubber', 'Polyureth', 'Latex', 'Resin', 'Polyacryl', 'Zinc', 'Nylon', 'Aramid']\n",
+      "\n",
+      "Shovels & Spades\n",
+      "['Glass', 'Glass', 'Wood']\n",
+      "\n",
+      "Carabiners\n",
+      "['Zinc', 'Alloy', 'Pet', 'Steel', 'Stainless Steel']\n",
+      "\n",
+      "Waste / Refuse Bags\n",
+      "[]\n",
+      "\n",
+      "Tie-Downs\n",
+      "['Nylon', 'Poly Stra', 'Polypropy', 'Pet', 'Steel', 'Stainless Steel', 'Nylon', 'Polyester', 'Poly Seal', 'Steel', 'Polypropy', 'Rubber', 'Galvanized Steel', 'Polyester', 'Rubber', 'Vinyl', 'Nylon', 'Poly Stra', 'Rubber', 'Elastic', 'Kevlar']\n",
+      "\n",
+      "Compliance & Janitorial Signage\n",
+      "['Metal', 'Polyacryl', 'Vinyl', 'Poly | No', 'Carbon', 'Poly 225X', 'Metal']\n",
+      "\n",
+      "Machinery Pulleys & Sheaves\n",
+      "['Steel', 'Steel', 'Polyacryl', 'Poly V Pu', 'Poly-V J ', 'Alloy', 'Epdm', 'Cast Iron', 'Gel', 'Poly-V Pu', 'Thermoplastic', 'Steel', 'Polyester', 'Zinc']\n",
+      "\n",
+      "Clotheslines & Clothes Drying Racks\n",
+      "[]\n",
+      "\n",
+      "Socks\n",
+      "['Wool']\n",
+      "\n",
+      "Power Saws Accessories & Replacement Parts\n",
+      "['Steel', 'Bi-Metal', 'Steel', 'Bi-Metal', 'Metal', 'Glass', 'Porcelain', 'Steel']\n",
+      "\n",
+      "Fuses & Circuit Breakers\n",
+      "[]\n",
+      "\n",
+      "Covers/Protectors\n",
+      "[]\n",
+      "\n",
+      "Shears & Cutters\n",
+      "['Nylon', 'Plastic', 'Rubber', 'Metal', 'Pvc', 'Polyvinyl', 'Plastic', 'Chloride', 'Carbide', 'Brass', 'Steel', 'Pet', 'Stainless Steel', 'Metal', 'Stainless Steel', 'Polyamide', 'Chrome', 'Copper', 'Foam', 'Nickel', 'Steel', 'Plastic', 'Carbide', 'Metal', 'Rubber', 'Chrome']\n",
+      "\n",
+      "Occupational Health & Safety Footwear\n",
+      "[]\n",
+      "\n",
+      "Abrasives\n",
+      "['Paper', 'Steel', 'Carbide', 'Stainless Steel', 'Emery', 'Plastic', 'Rubber', 'Stainless Steel', 'Steel', 'Carbon', 'Brass', 'Wood', 'Brass', 'Steel', 'Copper', 'Plastic', 'Iron', 'Silicone', 'Leather', 'Metal', 'Carbon', 'Polymers', 'Metal', 'Wood', 'Nylon', 'Graphite', 'Wool', 'Copper']\n",
+      "\n",
+      "Cleaning Cloths\n",
+      "['Cotton', 'Plastic']\n",
+      "\n",
+      "Earplugs\n",
+      "['Metal', 'Foam']\n",
+      "\n",
+      "Levels & Angle Measurement Tools\n",
+      "['Steel', 'Steel']\n",
+      "\n",
+      "Waste / Refuse Specialty Disposal\n",
+      "[]\n",
+      "\n",
+      "Pails, Buckets & Accessories\n",
+      "[]\n",
+      "\n",
+      "Electrical System\n",
+      "['Brass', 'Nylon', 'Stainless Steel', 'Brass', 'Aluminum', 'Pet', 'Foam', 'Foam', 'Steel', 'Pet', 'Zinc']\n",
+      "\n",
+      "Cabinets\n",
+      "['Foam', 'Metal', 'Pet']\n",
+      "\n",
+      "Other Freestanding Racks & Holders\n",
+      "[]\n",
+      "\n",
+      "Protective Footwear\n",
+      "['Steel', 'Rubber', 'Elastic']\n",
+      "\n",
+      "Cooling System\n",
+      "['Silicone', 'Silicone', 'Foam', 'Rubber', 'Iron', 'Copper', 'Epdm', 'Tpu', 'Aramid', 'Pet', 'Pet', 'Polybagge', 'Foam', 'Metal', 'Thermoplastic', 'Polyamide', 'Nylon', 'Rubber', 'Gel', 'Metal', 'Plastic', 'Stainless Steel', 'Paper', 'Gel', 'Tpu', 'Plastic', 'Metal', 'Silica']\n",
+      "\n",
+      "Rakes\n",
+      "['Steel', 'Polyacryl', 'Poly Alu ']\n",
+      "\n",
+      "Fixings & Fasteners\n",
+      "['Steel', 'Carbon', 'Polyisopr', 'Stainless Steel', 'Steel', 'Ptfe', 'Zinc', 'Steel', 'Metal', 'Aluminum', 'Bronze', 'Metal', 'Nickel', 'Wood', 'Stainless Steel', 'Teflon', 'Polytetra', 'Wood', 'Plastic', 'Brass', 'Chrome', 'Stainless Steel', 'Nylon', 'Wood', 'Alloy', 'Iron', 'Cast Iron', 'Zinc', 'Rubber', 'Alloy', 'Rubber', 'Stainless Steel', 'Plastic', 'Copper', 'Carbon', 'Nylon', 'Aluminum', 'Carbon', 'Zinc', 'Alloy', 'Fabric', 'Graphite', 'Paper', 'Copper', 'Titanium', 'Thermiculite', 'Iron', 'Ceramic', 'Elastic', 'Gel', 'Iron', 'Silicone', 'Pet', 'Paper', 'Pet', 'Metal', 'Nitrile', 'Brass', 'Glass', 'Epdm', 'Rubber', 'Composite', 'Resin', 'Neoprene', 'Glass', 'Resin', 'Polycarbo', 'Graphite', 'Composite', 'Brass', 'Tpu', 'Pvc', 'Bronze', 'Fiberglass', 'Nylon', 'Vinyl', 'Fabric', 'Anodized', 'Copper', 'Polymer-I', 'Ceramic', 'Polyureth', 'Cast Iron', 'Leather', 'Titanium', 'Aluminum', 'Bronze', 'Polypepti', 'Leather', 'Polymer I', 'Nickel', 'Pet', 'Stainless-Steel', 'Anodized', 'Glass', 'Polypropy', 'Carbon Fiber', 'Galvanized Steel', 'Chloride', 'Paper', 'Polyacryl', 'Synthetic', 'Carbide', 'Plastic', 'Chrome', 'Silica', 'Poly | Na', 'Thermoplastic', 'Thermiculite', 'Fabric', 'Fiberglass', 'Chrome', 'Graphite', 'Polynesia', 'Cotton', 'Foam', 'Polymer, ', 'Stainless-Steel', 'Polygon P', 'Polydrive', 'Chloride', 'Vinyl', 'Elastic', 'Polytetra', 'Polygon', 'Polyacryl', 'Nitrile', 'Poly', 'Cast Steel', 'Chloroprene', 'Poly Bags', 'Poly-Fibe', 'Neoprene', 'Silicone', 'Elastic', 'Spandex', 'Polymer M', 'Polymers', 'Engineered Wood', 'Bi-Metal', 'Polyisocy', 'Poly Pk80', 'Nickel', 'Polyvinyl', 'Polyprop ', 'Acrylic', 'Gel', 'Polysacch', 'Polymer C', 'Vinyl', 'Tungsten', 'Polyoxyme', 'Latex', 'Silicone', 'Polycryst', 'Synthetic', 'Polyamide', 'Acrylic', 'Polystyre', 'Polymer C', 'Polytetra', 'Tpu', 'Tpe', 'Polymer F', 'Poly- And', 'Chloroprene', 'Silica', 'Polyoxyme', 'Poly Cvc9']\n",
+      "\n",
+      "Active/Athletic Footwear\n",
+      "[]\n",
+      "\n",
+      "Fuel Storage Containers & Accessories\n",
+      "['Canvas', 'Steel', 'Pet']\n",
+      "\n",
+      "Furniture Accessories & Replacement Parts\n",
+      "['Nylon', 'Rubber', 'Polyacryl', 'Polyureth', 'Stainless Steel', 'Steel', 'Cast Iron', 'Nylon', 'Poly Tyre', 'Iron', 'Plastic', 'Zinc', 'Polyprop ', 'Poly Whee', 'Urethane', 'Foam', 'Poly On N', 'Graphite', 'Poly Nylo', 'Zinc', 'Tpe', 'Thermoplastic', 'Poly/Cast', 'Brass', 'Chrome', 'Poly 6In ', 'Poly | Ca', 'Poly Cast', 'Metal', 'Elastic', 'Poly Ss C', 'Poly Fill', 'Poly On I', 'Poly/Chro', 'Nylon', 'Synthetic', 'Wool', 'Polyureth', 'Rubber', 'Poly Ci |', 'Polypropy', 'Poly | Rm', 'Pet', 'Fabric', 'Poly Ny |', 'Steel', 'Leather', 'Glass', 'Polyuteth', 'Poly 200X', 'Stainless Steel', 'Poly 20Mm', 'Steel', 'Glass', 'Zinc', 'Poly Nyl ', 'Fleece', 'Poly 3/8 ', 'Poly Or S', 'Stainless Steel', 'Elastic', 'Poly N | ', 'Poly Uret', 'Poly Swiv']\n",
+      "\n",
+      "Drivers\n",
+      "['Chrome', 'Steel', 'Chrome']\n",
+      "\n",
+      "Vacuum/Water Bottles & Travel Mugs\n",
+      "[]\n",
+      "\n",
+      "Fixings & Fasteners C\n",
+      "['Rubber', 'Nitrile', 'Silicone', 'Steel', 'Steel', 'Chloroprene', 'Stainless Steel', 'Ptfe', 'Alloy', 'Epdm', 'Polytetra', 'Teflon', 'Zinc', 'Polyisopr', 'Metal', 'Iron', 'Silicone', 'Carbon', 'Plastic', 'Metal', 'Nickel', 'Brass', 'Zinc', 'Stainless Steel', 'Alloy', 'Bronze', 'Metal', 'Steel', 'Aluminum', 'Stainless Steel', 'Chrome', 'Wood', 'Brass', 'Pet', 'Nylon', 'Synthetic', 'Polyureth', 'Stainless Steel', 'Neoprene', 'Copper', 'Wood', 'Titanium', 'Nitrile', 'Zinc', 'Graphite', 'Gel', 'Chloride', 'Rubber', 'Rubber', 'Neoprene', 'Nylon', 'Anodized', 'Cotton', 'Urethane', 'Polyacryl', 'Paper', 'Pet', 'Plastic', 'Ceramic', 'Fabric', 'Carbon', 'Cast Iron', 'Iron', 'Wood', 'Poly Auto', 'Pet', 'Thermiculite', 'Nitrile', 'Ceramic', 'Plastic', 'Chrome', 'Vinyl', 'Carbon', 'Canvas', 'Polypropy', 'Paper', 'Nylon', 'Composite', 'Glass', 'Carbide', 'Porcelain', 'Bronze', 'Graphite', 'Tpe', 'Galvanized Steel', 'Silica', 'Polyacryl', 'Copper', 'Polycide ', 'Polypepti', 'Iron', 'Cotton', 'Poly Heli', 'Polyester', 'Wool', 'Poly | 18', 'Polyester', 'Acrylic', 'Copper', 'Pvc', 'Gel', 'Polyureth', 'Glass', 'Polymer 1', 'Poly 1/8\\\\', 'Foam', 'Poly | Oi', 'Polyester', 'Leather', 'Leather', 'Neoprene', 'Polyoxyme', 'Resin', 'Chrome', 'Polyamide', 'Galvanized Steel', 'Carbon Fiber', 'Tpu', 'Glass', 'Teflon', 'Titanium', 'Synthetic', 'Poly | Mc', 'Fiberglass', 'Tpu']\n",
+      "\n",
+      "Specialized Tools\n",
+      "['Chloroprene', 'Iron', 'Rubber', 'Plastic', 'Wood', 'Tpu', 'Rubber', 'Metal', 'Pet', 'Rubber', 'Foam', 'Stainless Steel', 'Iron']\n",
+      "\n",
+      "Lifting & Pulling Equipment\n",
+      "['Cast Iron', 'Metal', 'Fabric', 'Bronze']\n",
+      "\n",
+      "Pipes & Tubing\n",
+      "['Polyureth', 'Rubber', 'Thermo Plastic', 'Zinc', 'Copper', 'Stainless Steel', 'Vinyl', 'Chloride', 'Nylon', 'Polyvinyl', 'Pvc', 'Nylon', 'Brass', 'Polyacryl', 'Plastic', 'Poly Tube', 'Poly Duct']\n",
+      "\n",
+      "First Aid Variety Packs\n",
+      "[]\n",
+      "\n",
+      "Cleaning Tools & Accessories\n",
+      "['Wood', 'Carbon', 'Polyacryl', 'Metal', 'Poly Broo', 'Poly 45Cm', 'Cotton', 'Poly | 60', 'Foam', 'Alloy', 'Rubber', 'Nylon', 'Steel', 'Plastic', 'Poly Yard']\n",
+      "\n",
+      "Safety Glasses & Goggles\n",
+      "['Glass', 'Glass', 'Glass', 'Polycarbo', 'Bronze', 'Nylon', 'Bronze']\n",
+      "\n",
+      "Plastic Raw Materials\n",
+      "['Ptfe', 'Plastic', 'Polytetra', 'Teflon', 'Polyvinyl', 'Pvc', 'Chloride', 'Polystone', 'Urethane', 'Nylon', 'Acrylic']\n",
+      "\n",
+      "Hammers & Mallets\n",
+      "['Copper', 'Nylon', 'Chrome', 'Plastic', 'Metal', 'Polythene', 'Brass', 'Poly', 'Chrome', 'Wood', 'Glass']\n",
+      "\n",
+      "Safety Locks, Cable Seals, Lockouts & Accessories\n",
+      "['Brass', 'Steel', 'Chrome', 'Stainless Steel']\n",
+      "\n",
+      "Axes, Wedges, & Hooks\n",
+      "['Steel']\n",
+      "\n",
+      "Desks/Workstations/Workbenches\n",
+      "['Rubber', 'Plastic', 'Fabric', 'Pet', 'Foam', 'Aluminum', 'Nitrile', 'Glass', 'Metal', 'Gel', 'Carbide', 'Poly Port', 'Stainless Steel', 'Poly Wall', 'Poly Leve', 'Paper', 'Brass', 'Leather', 'Wood']\n",
+      "\n",
+      "Handheld Mirrors\n",
+      "[]\n",
+      "\n",
+      "Replacement Saw Blades\n",
+      "['Steel', 'Wood', 'Rubber', 'Rubber', 'Tungsten', 'Iron', 'Bimetal', 'Carbon', 'Iron']\n",
+      "\n",
+      "Conduit Fittings, Replacement Parts, & Accessories\n",
+      "[]\n",
+      "\n",
+      "Eye & Vision Protection Replacement Parts & Accessories\n",
+      "[]\n",
+      "\n",
+      "Full Brim Hats\n",
+      "[]\n",
+      "\n",
+      "Protective Gloves\n",
+      "['Leather', 'Foam', 'Synthetic', 'Cotton', 'Tungsten', 'Latex', 'Pvc', 'Polyvinyl', 'Chloride', 'Kevlar', 'Metal', 'Kevlar', 'Chrome', 'Nitrile', 'Foam', 'Glass', 'Polycotto', 'Nylon', 'Rubber', 'Poly/Cott']\n",
+      "\n",
+      "Protective Sleeves\n",
+      "[]\n",
+      "\n",
+      "Machinery Couplers\n",
+      "['Rubber', 'Steel', 'Steel', 'Epdm', 'Stainless Steel', 'Elastic', 'Rubber', 'Chloroprene', 'Urethane', 'Rubber', 'Chloroprene', 'Nylon', 'Alloy', 'Neoprene', 'Aluminum', 'Nitrile', 'Polyeuret', 'Polyureth', 'Steel', 'Alloy', 'Polyacryl', 'Thermo Plastic', 'Wood', 'Polyethyl', 'Zinc', 'Metal', 'Elastic', 'Gel', 'Neoprene', 'Paper', 'Carbon', 'Plastic', 'Metal', 'Paper', 'Poly (Nyl', 'Pet', 'Wood', 'Canvas', 'Cast Iron', 'Nylon', 'Poly Uret', 'Brass', 'Synthetic', 'Elastic', 'Metal', 'Cast Iron', 'Paper', 'Urethane', 'Poly Norm', 'Gel', 'Iron', 'Bronze', 'Polynorm ']\n",
+      "\n",
+      "Hard Hats & Bump Caps\n",
+      "['Brass']\n",
+      "\n",
+      "Barriers, Barricades & Cones\n",
+      "['Plastic']\n",
+      "\n",
+      "Vises & Clamps\n",
+      "['Steel', 'Chrome', 'Nickel', 'Alloy', 'Cast Iron', 'Steel', 'Fabric', 'Metal', 'Plastic', 'Nickel', 'Plastic', 'Alloy', 'Polyvinyl', 'Pet', 'Zinc', 'Fabric', 'Nylon', 'Vinyl', 'Polyester', 'Stainless Steel', 'Brass', 'Iron', 'Rubber', 'Chloride', 'Wood', 'Plastic', 'Alloy', 'Polyamide', 'Foam', 'Polypropy', 'Cast Iron', 'Pvc', 'Nylon', 'Rubber', 'Zinc']\n",
+      "\n",
+      "Knee & Elbow Pads\n",
+      "[]\n",
+      "\n",
+      "Visors\n",
+      "['Polycarb ', 'Polycarbo']\n",
+      "\n",
+      "Machinery Sprockets\n",
+      "['Polyamide', 'Stainless Steel', 'Cast Iron', 'Steel', 'Bronze', 'Plastic', 'Cast Iron', 'Brass']\n",
+      "\n",
+      "Occupational Health & Safety Workwear Variety Packs\n",
+      "[]\n",
+      "\n",
+      "General Hardware\n",
+      "['Stainless Steel', 'Steel', 'Steel', 'Brass', 'Stainless Steel', 'Plastic', 'Carbon', 'Brass', 'Iron', 'Zinc', 'Steel', 'Stainless Steel', 'Metal', 'Alloy', 'Rubber', 'Carbon', 'Zinc', 'Plastic', 'Fabric', 'Nickel', 'Pet', 'Wood', 'Chrome', 'Stainless Steel', 'Alloy', 'Metal', 'Metal', 'Rubber', 'Gel', 'Fabric', 'Alloy', 'Rubber', 'Copper', 'Copper', 'Copper', 'Fabric', 'Composite', 'Polybag.', 'Pvc', 'Polynesia', 'Titanium', 'Neoprene', 'Nickel', 'Foam', 'Bronze', 'Polyme', 'Nitrile', 'Brass', 'Wood', 'Carbon', 'Silica', 'Nickel', 'Elastic', 'Nylon', 'Glass', 'Fiber Glass', 'Tpu', 'Gel', 'Ceramic', 'Linen', 'Polypro 0', 'Graphite', 'Polyureth', 'Paper', 'Iron', 'Silica', 'Pet', 'Glass', 'Pet', 'Iron', 'Fiberglass', 'Polyaceta', 'Composite', 'Ptfe', 'Pvc', 'Bronze', 'Plastic', 'Urethane', 'Graphite', 'Thermoplastic', 'Aluminum']\n",
+      "\n",
+      "Ropes, Strings & Chains\n",
+      "['Stainless Steel', 'Steel', 'Plastic', 'Rubber', 'Pvc', 'Carbon', 'Polyvinyl', 'Steel', 'Chloride', 'Polyacryl', 'Polyaceta', 'Poly Rope', 'Polypropy', 'Alloy', 'Plastic', 'Neoprene', 'Zinc', 'Nylon', 'Chrome', 'Carbon', 'Nickel', 'Polyethyl', 'Metal', 'Epdm', 'Rubber', 'Poly Cord', 'Silicone', 'Nylon', 'Copper', 'Stainless Steel', 'Stainless Steel', 'Neoprene', 'Polycord ', 'Polyethen', 'Polymer M', 'Glass', 'Plastic', 'Metal', 'Polyethyl', 'Ceramic', 'Rubber', 'Pet', 'Zinc']\n",
+      "\n",
+      "Sprayer Parts & Accessories\n",
+      "[]\n",
+      "\n",
+      "Tape Measures\n",
+      "['Glass', 'Steel']\n",
+      "\n",
+      "Disposable Gloves\n",
+      "['Rubber', 'Nitrile']\n",
+      "\n",
+      "Rulers\n",
+      "['Stainless Steel', 'Steel', 'Stainless Steel', 'Glass', 'Pvc', 'Rubber']\n",
+      "\n",
+      "Valves\n",
+      "['Brass', 'Stainless Steel', 'Polyvinyl', 'Pvc', 'Chloride', 'Brass', 'Wood', 'Fabric', 'Nitrile', 'Alloy', 'Aluminum', 'Alloy', 'Pet', 'Epdm', 'Steel', 'Polybutyl', 'Poly 2Way', 'Rubber', 'Polyacryl']\n",
+      "\n",
+      "Material Handling Replacement Parts & Accessories\n",
+      "['Stainless Steel', 'Alloy', 'Copper', 'Polyamide', 'Nickel', 'Steel', 'Carbon', 'Synthetic', 'Nylon', 'Polyester', 'Fabric', 'Steel', 'Pet', 'Iron', 'Tungsten', 'Zinc', 'Rubber', 'Gel', 'Wood', 'Zinc', 'Alloy', 'Iron', 'Glass', 'Brass', 'Chrome', 'Polyadeno', 'Metal', 'Polyglobu', 'Carbon', 'Silica', 'Polyhedro', 'Pet', 'Chloride', 'Thermoplastic', 'Carbon', 'Alloy', 'Wool', 'Chrome', 'Polyuria ', 'Cotton', 'Cast-Steel', 'Polybuten', 'Ceramic', 'Carbide', 'Steel', 'Paper', 'Glass', 'Polyparia', 'Polycot D', 'Plastic', 'Polynucle', 'Foam', 'Stainless Steel', 'Neoprene', 'Brass', 'Vinyl', 'Tpu', 'Resin', 'Polyoxyme', 'Polymyari', 'Vinyl', 'Nickel', 'Cotton', 'Polysone ', 'Stainless Steel', 'Polyphasi']\n",
+      "\n",
+      "Face Shields\n",
+      "['Polynesia', 'Polyvinyl', 'Chloride', 'Foam', 'Polycarbo', 'Pvc', 'Wood']\n",
+      "\n",
+      "Pocket Knives\n",
+      "[]\n",
+      "\n",
+      "Funnels\n",
+      "['Plastic', 'Plastic', 'Steel']\n",
+      "\n",
+      "Key Rings/Fobs/Chains\n",
+      "['Stainless Steel']\n",
+      "\n",
+      "Desiccants\n",
+      "[]\n",
+      "\n",
+      "Wheel Immobilizers & Chocks\n",
+      "[]\n",
+      "\n",
+      "Ladders\n",
+      "['Plastic', 'Steel', 'Fabric']\n",
+      "\n",
+      "Shipping & Packaging Tools, Dispensers & Replacement Parts\n",
+      "['Plastic', 'Steel', 'Polychem,', 'Wood', 'Metal', 'Polyester', 'Composite', 'Steel', 'Steel', 'Plastic']\n",
+      "\n",
+      "Fixings & Fasteners B\n",
+      "['Rubber', 'Nitrile', 'Ptfe', 'Teflon', 'Polytetra', 'Carbon', 'Steel', 'Ceramic', 'Stainless Steel', 'Nitrile', 'Epdm', 'Rubber', 'Zinc', 'Nylon', 'Metal', 'Polyureth', 'Steel', 'Nylon', 'Stainless Steel', 'Aluminum', 'Silicone', 'Leather', 'Zinc', 'Polyamide', 'Steel', 'Fabric', 'Metal', 'Tpe', 'Iron', 'Wood', 'Carbon', 'Metal', 'Carbon', 'Brass', 'Plastic', 'Stainless Steel', 'Chloroprene', 'Stainless Steel', 'Wood', 'Brass', 'Alloy', 'Fabric', 'Aluminum', 'Copper', 'Silicone', 'Gel', 'Polyacryl', 'Rubber', 'Glass', 'Pet', 'Tungsten', 'Bronze', 'Wood', 'Urethane', 'Iron', 'Teflon', 'Pet', 'Pet', 'Alloy', 'Paper', 'Nickel', 'Neoprene', 'Plastic', 'Polyamide', 'Copper', 'Zinc', 'Synthetic', 'Bronze', 'Polycarbo', 'Tpu', 'Neoprene', 'Poly Pk S', 'Brass', 'Tpu', 'Iron', 'Fabric', 'Glass', 'Pvc', 'Titanium', 'Poly U-Ri', 'Thermoplastic', 'Neoprene', 'Polymer', 'Alloy', 'Titanium', 'Glass', 'Tpe', 'Polyisopr', 'Anodized', 'Copper', 'Aluminum', 'Thermoplastic', 'Graphite', 'Polypk Se', 'Cast Iron', 'Foam', 'Kevlar', 'Chrome', 'Polyureth', 'Plastic', 'Polyether', 'Acrylic', 'Vinyl', 'Poly Pkt ', 'Poly Red ', 'Porcelain', 'Polypropy', 'Wool', 'Graphite', 'Nickel', 'Polyster ', 'Leather', 'Composite', 'Composite', 'Latex', 'Paper', 'Graphite', 'Polyethyl', 'Poly Stra', 'Polycord ', 'Polymer C', 'Poly Seal', 'Composite', 'Poly 6Mtx', 'Resin', 'Carbide', 'Carbon Fiber', 'Chloride', 'Polyoxyme', 'Polybag -', 'Synthetic', 'Polypropy', 'Polyester', 'Chrome', 'Polymers ', 'Cast Iron', 'Polyethyl', 'Polyureth', 'Poly Chai', 'Aramid', 'Gel', 'Polyfilla', 'Polypak S', 'Paper', 'Carbon Fiber']\n",
+      "\n",
+      "Hose Tools & Attachments\n",
+      "['Brass', 'Stainless Steel', 'Plastic', 'Brass', 'Steel', 'Steel', 'Brass', 'Zinc', 'Stainless Steel', 'Steel', 'Rubber', 'Stainless Steel', 'Metal', 'Wood', 'Plastic', 'Iron', 'Alloy', 'Copper', 'Epdm', 'Plastic', 'Metal', 'Metal', 'Gel', 'Cast Iron', 'Glass', 'Chrome', 'Zinc', 'Nickel', 'Bronze', 'Leather', 'Stainless Steel', 'Iron', 'Wood', 'Tungsten', 'Polycarbo', 'Pvc', 'Nickel', 'Kevlar', 'Gel', 'Rubber', 'Emery', 'Chrome', 'Cast Iron', 'Nylon', 'Iron', 'Polyvinyl', 'Terephthalate', 'Polyureth', 'Polybutyl', 'Silicone', 'Ceramic', 'Chloride', 'Poly-M Ad', 'Poly-M Ad', 'Carbon', 'Rubber', 'Elastic', 'Nitrile', 'Polyacryl', 'Carbon', 'Poly Type', 'Resin', 'Pet', 'Polymer T', 'Polypro,9', 'Gel', 'Composite', 'Poly (2\")', 'Polypropy', 'Polymers,', 'Latex', 'Polypropy', 'Resin', 'Stainlesssteel', 'Tpu', 'Synthetic']\n",
+      "\n",
+      "Landscaping Equipment Accessories & Replacement Parts\n",
+      "[]\n",
+      "\n",
+      "Safes & Lock Boxes\n",
+      "[]\n",
+      "\n",
+      "Cord Management\n",
+      "[]\n",
+      "\n",
+      "Power & Impact Drills/Drivers/Presses Accessories & Replacement Parts\n",
+      "['Steel', 'Steel', 'Plastic', 'Stainless Steel', 'Wood', 'Bi-Metal', 'Carbon', 'Cast Iron', 'Brass', 'Iron', 'Metal', 'Alloy', 'Carbide', 'Titanium', 'Ceramic', 'Wood', 'Metal', 'Plastic', 'Tungsten Carbide', 'Bi-Metal', 'Brass', 'Carbide', 'Glass', 'Titanium', 'Chrome', 'Carbon', 'Wood', 'Alloy', 'Brass', 'Thermo Plastic', 'Aluminum', 'Rubber', 'Bronze', 'Carbide', 'Tungsten Carbide', 'Bronze', 'Pet', 'Cast Iron', 'Foam', 'Bi Metal', 'Stainless Steel', 'Rubber', 'Cotton', 'Leather', 'Copper', 'Bi-Metal']\n",
+      "\n",
+      "Dollies, Hand Trucks & Moving Carts\n",
+      "['Plastic']\n",
+      "\n",
+      "Hooks\n",
+      "[]\n",
+      "\n",
+      "Harnesses & Miner Belts\n",
+      "[]\n",
+      "\n",
+      "Cookware & Bakeware Storage Racks\n",
+      "[]\n",
+      "\n",
+      "Liners & Sheeting\n",
+      "['Chrome']\n",
+      "\n",
+      "Wall Mirrors\n",
+      "['Glass', 'Acrylic']\n",
+      "\n",
+      "Pipe & Tubing Parts & Accessories\n",
+      "['Stainless Steel', 'Brass', 'Steel', 'Brass', 'Nickel', 'Steel', 'Plastic', 'Glass', 'Polyacryl', 'Metal', 'Pvc', 'Nylon', 'Pet', 'Steel', 'Chloride', 'Polyvinyl', 'Poly-F Co', 'Brass', 'Nylon', 'Stainless Steel', 'Poly-M Ad', 'Poly-M Ad', 'Ptfe', 'Rubber', 'Nickel', 'Poly-Dust', 'Bronze', 'Zinc', 'Carbon', 'Polypropy', 'Gel', 'Copper', 'Poly 100M', 'Alloy', 'Rubber', 'Zinc', 'Thermoplastic', 'Poly Type', 'Teflon', 'Polytetra', 'Silicone', 'Wood', 'Vinyl', 'Nylon', 'Fiberglass', 'Metal', 'Metal', 'Plastic', 'Poly Tee ', 'Fabric', 'Plastic', 'Polyureth', 'Zinc', 'Alloy', 'Aluminum', 'Nickel', 'Polypak S', 'Poly 32Mm', 'Poly 50Mm', 'Polycarbo', 'Acrylic', 'Copper', 'Ceramic', 'Leather', 'Glass', 'Nitrile', 'Ceramic', 'Fabric', 'Terephthalate', 'Carbon', 'Pet', 'Stainless Steel', 'Teflon', 'Polybutyl', 'Cast Iron', 'Foam', 'Neoprene', 'Poly 25Mm', 'Composite', 'Poly Male', 'Cast Iron', 'Tpu', 'Paper', 'Poly-Male', 'Poly Te F', 'Poly 2In ', 'Chrome', 'Bi Metal', 'Poly Cvc8', 'Polyoxyme', 'Iron', 'Cast Iron', 'Poly- Dus', 'Polycarbo', 'Alloy']\n",
+      "\n",
+      "Occupational Health & Safety Upper Body Wear\n",
+      "['Cotton', 'Fleece', 'Chloride', 'Foam', 'Pvc', 'Polyvinyl', 'Leather', 'Kevlar', 'Metal', 'Stainless Steel', 'Plastic', 'Steel', 'Carbon', 'Leather', 'Leather', 'Iron']\n",
+      "\n",
+      "Putty Knives & Scrapers\n",
+      "['Plastic', 'Steel', 'Metal', 'Carbon', 'Chrome', 'Plastic', 'Plastic', 'Silicone', 'Stainless Steel']\n",
+      "\n",
+      "Wire Terminals & Connectors\n",
+      "['Polyolefi', 'Brass', 'Rubber', 'Stainless Steel', 'Nylon', 'Polyolefi', 'Aluminum', 'Vinyl', 'Alloy', 'Nickel', 'Nylon', 'Fabric', 'Brass', 'Silicone', 'Gel', 'Copper', 'Metal', 'Pvc', 'Plastic']\n",
+      "\n",
+      "Rotary Tools Accessories & Replacement Parts\n",
+      "['Bi-Metal', 'Bi Metal', 'Steel', 'Bi-Metal', 'Polystyre', 'Ceramic', 'Wood', 'Wood', 'Poly Fill']\n",
+      "\n",
+      "Sand, Mortar, & Cement\n",
+      "[]\n",
+      "\n",
+      "9482\n",
+      "[]\n",
+      "\n",
+      "Multitools\n",
+      "['Leather', 'Leather', 'Stainless Steel', 'Nylon', 'Nylon']\n",
+      "\n",
+      "Hand Saws\n",
+      "['Alloy', 'Poly Grip', 'Bi-Metal', 'Rubber', 'Thermo Plastic', 'Bi-Metal', 'Polyacryl']\n",
+      "\n",
+      "Respirators\n",
+      "['Iron', 'Metal']\n",
+      "\n",
+      "Knobs & Pulls\n",
+      "[]\n",
+      "\n",
+      "Hinges\n",
+      "['Stainless Steel', 'Zinc']\n",
+      "\n",
+      "Machinery Belts\n",
+      "['Polyrib B', 'Polyrib J', 'Polyrib H', 'Polyflex ', 'Poly-V Be', 'Polyacryl', 'Polyureth', 'Poly V-Be', 'Kevlar', 'Polyrib K', 'Poly V Be', 'Polyrib V', 'Polyrib L', 'Steel', 'Rubber', 'Aramid', 'Pet', 'Tpe', 'Epdm', 'Poly V Be', 'Polychain', 'Polyrib M', 'Poly Belt', 'Polybutad', 'Urethane', 'Poly Rib ', 'Vinyl', 'Poly J Be', 'Elastic', 'Pvc', 'Chloride', 'Polyvinyl', 'Poly Rib ', 'Poly-V-Be', 'Poly-V Po', 'Pet', 'Poly Cord', 'Zinc', 'Rubber', 'Poly-Rib ', 'Metal', 'Poly-V Be', 'Poly-V Ri', 'Cotton', 'Polyrib', 'Nylon', 'Polyrib 1', 'Polyester', 'Poly-V V ', 'Poly Flex', 'Polyester', 'Poly J Se', 'Neoprene', 'Polypropy', 'Poly-V Ri', 'Polyrib S', 'Fabric', 'Polybelt ', 'Poly-V | ', 'Poly Vee ', 'Glass', 'Poly Set ', 'Polypropy', 'Poly-V', 'Poly | Ti', 'Poly L Ri', 'Brass', 'Polycrd B', 'Wood', 'Poly J V-', 'Polyj 550', 'Polyrid B', 'Wood', 'Polyj0350', 'Polyflex®', 'Polyribbe', 'Nitrile', 'Steel']\n",
+      "\n",
+      "Metal & Alloy\n",
+      "['Bronze', 'Steel', 'Metal', 'Brass', 'Tungsten', 'Steel', 'Resin', 'Alloy', 'Iron', 'Tungsten', 'Plastic', 'Nickel', 'Leather', 'Carbon', 'Alloy', 'Steel', 'Tungsten', 'Fabric', 'Paper', 'Paper', 'Fabric', 'Stainless Steel', 'Stainless Steel', 'Carbon', 'Cotton', 'Iron', 'Zinc', 'Hdpe', 'Carbide', 'Polyethyl']\n",
+      "\n",
+      "Occupational Health & Safety Overwear\n",
+      "['Chrome', 'Leather']\n",
+      "\n",
+      "Pumps\n",
+      "['Polyacryl', 'Stainless Steel', 'Nitrile', 'Polyethyl', 'Polypropy', 'Poly Chem', 'Poly Vito', 'Stainless Steel']\n",
+      "\n",
+      "Tool Storage\n",
+      "['Metal', 'Poly Hosp', 'Wood', 'Rubber', 'Polyacryl']\n",
+      "\n",
+      "Safety Lanyards & Lifelines\n",
+      "['Elastic', 'Steel', 'Kevlar']\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "for i in range(len(unique_bucket_list)):\n",
+    "    print(unique_bucket_list[i])\n",
+    "    bucket_list=bucket_value[bucket_value['buckets'].astype(str)==unique_bucket_list[i]]['values'].to_list()\n",
+    "    material_list=material[material['buckets'].astype(str)==unique_bucket_list[i]]['match'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "    a=[]\n",
+    "    for i in range(len(material_list)):\n",
+    "        a.append(material_list[i].title())\n",
+    "    print(a)\n",
+    "    print('')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['Polyolefi',\n",
+       " 'Brass',\n",
+       " 'Rubber',\n",
+       " 'Stainless Steel',\n",
+       " 'Nylon',\n",
+       " 'Polyolefi',\n",
+       " 'Aluminum',\n",
+       " 'Vinyl',\n",
+       " 'Alloy',\n",
+       " 'Nickel',\n",
+       " 'Nylon',\n",
+       " 'Fabric',\n",
+       " 'Brass',\n",
+       " 'Silicone',\n",
+       " 'Gel',\n",
+       " 'Copper',\n",
+       " 'Metal',\n",
+       " 'Pvc',\n",
+       " 'Plastic']"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "bucket_list=bucket_value[bucket_value['buckets'].astype(str)=='Wire Terminals & Connectors']['values'].to_list()\n",
+    "material_list=material[material['buckets'].astype(str)=='Wire Terminals & Connectors']['match'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "a=[]\n",
+    "for i in range(len(material_list)):\n",
+    "    a.append(material_list[i].title())\n",
+    "a"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bucket_list"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "[e for e in a if e not in bucket_list]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "inside_diameter=df_total.loc[(df_total['attribute'].astype(str)=='inside_diameter')]\n",
+    "print(len(inside_diameter))\n",
+    "\n",
+    "# .apply(lambda x: re.sub(r'','',str(x)))\n",
+    "pat='''(?i)(.{0,10}(?<!\\d)(?<!\\-)(?<![A-z])(?<!\\.)(?:(?:\\d+\\.|\\d+\\/)?\\d+.{0,3}\\s?x\\s?(?:\\d+\\.|\\d+\\/)?\\d+.{0,3}\\s?x\\s?(?:\\d+\\.|\\d+\\/)?\\d+.{0,3}|(?:\\d+\\.|\\d+\\/)?\\d+.{0,3}\\s?x\\s?(?:\\d+\\.|\\d+\\/)?\\d+.{0,3})(?!\\d)(?!\\.)(?!\\-).{0,10})|()'''                                         \n",
+    "inside_diameter['match']=inside_diameter['long_desc'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "\n",
+    "pat='''(?i)(.{0,10}O.?Ring.{0,10})|()'''                                         \n",
+    "inside_diameter['o_ring']=inside_diameter['long_desc'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "\n",
+    "pat='''(?i)(.{0,10}lock.?nut.{0,10})|()'''                                         \n",
+    "inside_diameter['locknut']=inside_diameter['long_desc'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "\n",
+    "\n",
+    "inside_dia=inside_diameter[inside_diameter['match'].astype(str)!='[]']\n",
+    "print(len(inside_dia))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "364\n"
+     ]
+    }
+   ],
+   "source": [
+    "id_buckets_none=inside_dia[(inside_dia['buckets'].astype(str)=='None')]\n",
+    "print(len(id_buckets_none))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "14718\n"
+     ]
+    }
+   ],
+   "source": [
+    "id_na=inside_dia[inside_dia['value'].astype(str)=='n/a']\n",
+    "print(len(id_na))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Machinery Belts                    2799\n",
+       "Fixings & Fasteners                2425\n",
+       "Transmission System & Driveline    2394\n",
+       "Fixings & Fasteners C              2347\n",
+       "Fixings & Fasteners B              1995\n",
+       "Bearings                            809\n",
+       "Hose Tools & Attachments            450\n",
+       "Sealants                            267\n",
+       "Hoses                               198\n",
+       "Cooling System                      176\n",
+       "Name: buckets, dtype: int64"
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "id_na[id_na['match'].astype(str)!='[]']['buckets'].explode().value_counts()[0:10]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "1995\n"
+     ]
+    }
+   ],
+   "source": [
+    "null_od_fixing=id_na.loc[(id_na['buckets'].astype(str)=='Fixings & Fasteners B')&(id_na['match'].astype(str)!='[]')]\n",
+    "null_od_fixing['Q:inside_diameter']=''\n",
+    "inside_diameter_match_fixing_b_wipe=null_od_fixing[['external_id','Q:inside_diameter']]\n",
+    "\n",
+    "print(len(inside_diameter_match_fixing_b_wipe))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "\n",
+    "\n",
+    "def get_df_name(df):\n",
+    "    name =[x for x in globals() if globals()[x] is df][0]\n",
+    "    return name\n",
+    "def looks_good(customer, matches): \n",
+    "    drive_path = f'G:/Shared drives/GroupBy Public/Customer Success/.Enrich/Platform Upload Trail/{customer}/Ready for uploads' \n",
+    "    matches.to_csv(f'{drive_path}/Motion APAC--{get_df_name(matches)}-inside_diameter_match_fixing_b_wipe-{today}.csv',index=False) \n",
+    "looks_good('Motion APAC',inside_diameter_match_fixing_b_wipe) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "outside_diameter    86717\n",
+       "Name: attribute, dtype: int64"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "outside_diameter['attribute'].explode().value_counts()[0:5]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "prod=product_type[product_type['value'].astype(str)=='n/a']\n",
+    "print(len(prod))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "product_type=dfs[dfs['attribute'].astype(str)=='product_type']\n",
+    "product_type['value'].explode().value_counts()[0:500]\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dfs['attribute'].explode().value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# BBBY Bed Bath and Beyond"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print('bbby')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "capacity (qt)\n",
+    "Room Coverage\n",
+    "Baby Food Volume\n",
+    "Daily Ice Production"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x='capacity (qt)'\n",
+    "x.replace(' ','_').replace('(','_').replace(')','')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "customer_id = '5'\n",
+    "customer_name='%bedbathandbeyond%'\n",
+    "dateszs='2002-08-11'\n",
+    "attribut='set_size'\n",
+    "curation_col = f'Q:{attribut}'\n",
+    "params = {'customer_id': customer_id,\n",
+    "          'customer_name':customer_name,\n",
+    "         'dateszs':dateszs,\n",
+    "         'attribute':attribut}\n",
+    "\n",
+    "print('start')\n",
+    "dfs = query_from_file(file_name='../query/curated_all_attributes_date_one_attribute.sql', params=params)\n",
+    "print(len(dfs))\n",
+    "# dfz=dfs[dfs['resolution'].astype(str)!='rules']\n",
+    "# print(len(dfz))\n",
+    "# dfh=dfz[dfz['custom_fields'].astype(str)!='None']\n",
+    "# # dfz=dfz[dfz['buckets'].astype(str)=='Conduit Fittings, Replacement Parts, & Accessories']\n",
+    "# print(len(dfh))\n",
+    "custom_field_df=pd.json_normalize(dfh['custom_fields'])\n",
+    "fields=['Set_Size']\n",
+    "df = pd.concat([dfs.drop('custom_fields', axis=1), custom_field_df[fields]], axis = 1)\n",
+    "# print(len(df))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dfs.head(0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_na=dfs[dfs['value'].astype(str)=='n/a']\n",
+    "print(len(df_na))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dfs['value'].explode().value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pat='''(?i)((?:\\d{1,2}(?!\\d).?piece.?set|(?<!near.)set.?of.?\\d{1,2}(?!\\d)(?:.?or.?\\d{1,2}(?!\\d))?|set.?size.?'\\:\\s?'\\d{1,2}(?!\\d)))|()'''\n",
+    "df_na['m_name']=df_na['product_name'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "df_na['m_long']=df_na['long_desc'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "df_na['m_custom']=df_na['custom_fields'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "\n",
+    "set_size_all=df_na[(df_na['m_name'].astype(str)!='[]')|(df_na['m_long'].astype(str)!='[]')|(df_na['m_custom'].astype(str)!='[]')]\n",
+    "print(len(set_size_all))\n",
+    "set_size_custom=df_na[(df_na['m_custom'].astype(str)!='[]')]\n",
+    "print(len(set_size_custom))\n",
+    "set_size=df_na[((df_na['m_name'].astype(str)!='[]')|(df_na['m_long'].astype(str)!='[]'))&(df_na['m_custom'].astype(str)!='[]')]\n",
+    "print(len(set_size))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "set_size_custom['matches']=set_size_custom['m_custom'].apply(lambda x: re.sub(r\"(or)\",'\",\"',str(x))).apply(lambda x: re.sub(r\"((?<!\\[)(?<!\\,)(?<!\\,\\s)'(?!\\,)(?!\\s\\,)(?!\\]))\",'',str(x))).apply(lambda x: re.sub(r'''(?i)((?:set|size|\\_|of|piece|\\:|\\s?|\\-))''','',str(x))).apply(lambda x: re.sub(r\"((?<=\\[)\\s?')|('\\s?(?=\\,))|((?<=\\,)\\s?')|('\\s?(?=\\]))\",'\"',str(x))).apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)])).apply(lambda x: re.sub(r\"((?<=\\[)\\s?')|('\\s?(?=\\,))|((?<=\\,)\\s?')|('\\s?(?=\\]))\",'\"',str(x))).apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)])).apply(lambda x: re.sub(r\"((?<=\\[)\\s?')|('\\s?(?=\\,))|((?<=\\,)\\s?')|('\\s?(?=\\]))\",'\"',str(x)))\n",
+    "# set_size_custom['matches'].explode().value_counts()\n",
+    "# set_size_custom[set_size_custom['matches'].astype(str)=='[\"3\",\"1\",\"2\",\"3\"]']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import re\n",
+    "\n",
+    "metric=' Piece Set'\n",
+    "range_string = \"\"\"\n",
+    "10 Piece Set\n",
+    "11 Piece Set\n",
+    "12 Piece Set\n",
+    "13 Piece Set\n",
+    "14 Piece Set\n",
+    "15 Piece Set\n",
+    "16 Piece Set\n",
+    "17 Piece Set\n",
+    "18 Piece Set\n",
+    "19 Piece Set\n",
+    "1 Piece\n",
+    "20+ Piece Set\n",
+    "2 Piece Set\n",
+    "3 Piece Set\n",
+    "4 Piece Set\n",
+    "5 Piece Set\n",
+    "6 Piece Set\n",
+    "7 Piece Set\n",
+    "8 Piece Set\n",
+    "9 Piece Set\n",
+    " \"\"\"\n",
+    "\n",
+    "range_params = {}\n",
+    "for range_entry in range_string.split('\\n'):\n",
+    "    range_nums = re.findall('\\d+', range_entry)\n",
+    "    if len(range_nums) > 0: \n",
+    "        range_params[tuple(map(int, range_nums))] = range_entry.strip()\n",
+    "\n",
+    "\n",
+    "def  range_app(num_lst):\n",
+    "    updated_labels = []\n",
+    "    for num in num_lst:\n",
+    "        num = float(num)\n",
+    "        for range_param, range_label in range_params.items():\n",
+    "            if len(range_param) == 1:\n",
+    "                if num >= range_param[0]:\n",
+    "                    updated_labels.append(range_label)\n",
+    "            else:\n",
+    "                if num >= range_param[0] and num <= range_param[1]:\n",
+    "                    updated_labels.append(range_label)\n",
+    "    return updated_labels"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "set_size_custom[curation_col]=set_size_custom['matches'].apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)])).apply(range_app).apply(lambda x: re.sub(r\"((?<!\\[)(?<!\\,)(?<!\\,\\s)'(?!\\,)(?!\\s\\,)(?!\\]))\",'',str(x)))\n",
+    "set_size_custom[curation_col]=set_size_custom[curation_col].apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)])).apply(lambda x: re.sub(r\"((?<!\\[)(?<!\\,)(?<!\\,\\s)'(?!\\,)(?!\\s\\,)(?!\\]))\",'',str(x))).apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)]))\n",
+    "set_size_custom['matches'].explode().value_counts()\n",
+    "# set_size_custom[0:500]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "set_size_custom[set_size_custom['matches'].astype(str)=='[\"12\",\"16\",\"24\"]']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# set_size_custom[curation_col]=set_size_custom[curation_col].apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)])).apply(lambda x: re.sub(r\"((?<!\\[)(?<!\\,)(?<!\\,\\s)'(?!\\,)(?!\\s\\,)(?!\\]))\",'',str(x)))\n",
+    "# set_size_custom[curation_col].explode().value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "custom_na=set_size_custom[set_size_custom['value'].astype(str)=='n/a']\n",
+    "print(len(custom_na))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "set_size[curation_col]=set_size['']\n",
+    "match_set_size=set_size[['external_id',curation_col]]\n",
+    "match_set_size"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# imported['Q:origin']=''\n",
+    "# match_na_re_curates=imported[['external_id','Q:origin']]\n",
+    "\n",
+    "def get_df_name(df):\n",
+    "    name =[x for x in globals() if globals()[x] is df][0]\n",
+    "    return name\n",
+    "def looks_good(customer, matches): \n",
+    "    drive_path = f'G:/Shared drives/GroupBy Public/Customer Success/.Enrich/Platform Upload Trail/{customer}/_Ready For Upload' \n",
+    "    matches.to_csv(f'{drive_path}/Bed Bath & Beyond --{get_df_name(matches)}-match_set_size-{today}.csv',index=False) \n",
+    "looks_good('Bed Bath & Beyond',match_set_size) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "customer_id = '5'\n",
+    "customer_name='%bedbathandbeyond%'\n",
+    "dateszs='2002-08-11'\n",
+    "attribut='length'\n",
+    "curation_col = f'Q:{attribut}'\n",
+    "params = {'customer_id': customer_id,\n",
+    "          'customer_name':customer_name,\n",
+    "         'dateszs':dateszs,\n",
+    "         'attribute':attribut}\n",
+    "\n",
+    "print('start')\n",
+    "dfs = query_from_file(file_name='../query/curated_all_attributes_date_one_attribute.sql', params=params)\n",
+    "print(len(dfs))\n",
+    "# dfz=dfs[dfs['resolution'].astype(str)!='rules']\n",
+    "# print(len(dfz))\n",
+    "# dfh=dfz[dfz['custom_fields'].astype(str)!='None']\n",
+    "# # dfz=dfz[dfz['buckets'].astype(str)=='Conduit Fittings, Replacement Parts, & Accessories']\n",
+    "# print(len(dfh))\n",
+    "# custom_field_df=pd.json_normalize(dfh['custom_fields'])\n",
+    "# df=pd.concat([dfs.drop('custom_fields', axis=1), custom_field_df], axis = 1)\n",
+    "# print(len(df))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pat='''((?:in[A-z]|in[in\\w]|\\d\"|\\d'|\\d[^']\\]|\\d+\\.\\d\\d\\d)|\\.0(?!\\d)|\\.\\d0|xa|\\\\|\\d\\d\\d\\d|\\d\\.(?!\\d)|(?<!\\d)\\.\\d|  |\\d\"|a-eghj-lo-z)|(\\d\\/\\d)|(i(?!n))|('')|(’)|('\")|(mm)|(\\d\\s?w)|(\\d(?!\\sin)(?!\\d)(?!\\.)(?! ft)(?! ))|(\\-)|(?:â|³)|(\\d\\,\\d)|(\\d\\s\\d+\\s)|((?:IN|In|iN|FT|Ft|fT))|([^0-9inft\\s\"\\]\\[,\\.])|((?<!\\d)0 in)|((?<!\\d)(?<!\\.)0(?!\\.))'''\n",
+    "dfs['match']=dfs['value'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "length=dfs[(dfs['match'].astype(str)!='[]')&(dfs['value'].astype(str)!='n/a')]\n",
+    "print(len(dfs))\n",
+    "print(len(length))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x=dfs['value'].explode().value_counts().reset_index()['index'].to_list()\n",
+    "print(len(x))\n",
+    "print(x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "length['value'].explode().value_counts()\n",
+    "length[length['curated_date'].astype(str)=='2023-01-10']\n",
+    "length[curation_col]=''\n",
+    "match_depth=length[['external_id',curation_col]]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "length[curation_col]=length['value'].apply(lambda x: re.sub(r'''()''','',str(x))).apply(lambda x: re.sub(r'''()''','',str(x))).apply(lambda x: re.sub(r'''()''','',str(x))).apply(lambda x: re.sub(r'''()''','',str(x))).apply(lambda x: re.sub(r'''()''','',str(x)))\n",
+    "length[curation_col]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "length[curation_col]=''\n",
+    "match_length=length[['external_id',curation_col]]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# imported['Q:origin']=''\n",
+    "# match_na_re_curates=imported[['external_id','Q:origin']]\n",
+    "\n",
+    "def get_df_name(df):\n",
+    "    name =[x for x in globals() if globals()[x] is df][0]\n",
+    "    return name\n",
+    "def looks_good(customer, matches): \n",
+    "    drive_path = f'G:/Shared drives/GroupBy Public/Customer Success/.Enrich/Platform Upload Trail/{customer}/_Ready For Upload' \n",
+    "    matches.to_csv(f'{drive_path}/Bed Bath & Beyond --{get_df_name(matches)}-match_depth-{today}.csv',index=False) \n",
+    "looks_good('Bed Bath & Beyond',match_depth) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df['value'].explode().value_counts()\n",
+    "# print(len(df[df['value'].astype(str)!='n/a']))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(len(df))\n",
+    "pat='''(?i)((?<=\\w)(?<!st)(?<!\\d)\\.)'''\n",
+    "df['match']=df['value'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "qt=df[df['match'].astype(str)!='[]']\n",
+    "print(len(qt))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "qt['value'].explode().value_counts()\n",
+    "df[curation_col]=df['value'].apply(lambda x: re.sub(r'(?i)((?<=\\w)(?<!st)(?<!\\d)\\.)','',str(x)))\n",
+    "df[curation_col].explode().value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "match=df[(df['value'].astype(str)!='nan')&(df['value'].astype(str)!='n/a')]\n",
+    "match[curation_col].explode().value_counts()\n",
+    "match_qt=match[['external_id',curation_col]]\n",
+    "match_qt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# imported['Q:origin']=''\n",
+    "# match_na_re_curates=imported[['external_id','Q:origin']]\n",
+    "\n",
+    "def get_df_name(df):\n",
+    "    name =[x for x in globals() if globals()[x] is df][0]\n",
+    "    return name\n",
+    "def looks_good(customer, matches): \n",
+    "    drive_path = f'G:/Shared drives/GroupBy Public/Customer Success/.Enrich/Platform Upload Trail/{customer}/_Ready For Upload' \n",
+    "    matches.to_csv(f'{drive_path}/Bed Bath & Beyond --{get_df_name(matches)}-match_qt-{today}.csv',index=False) \n",
+    "looks_good('Bed Bath & Beyond',match_qt) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "customer_id = '66'\n",
+    "customer_name='%bjs%'\n",
+    "dateszs='2023-01-01'\n",
+    "dateszsz='2023-12-30'\n",
+    "params = {'customer_id': customer_id,\n",
+    "          'customer_name':customer_name,\n",
+    "         'dateszs':dateszs,\n",
+    "         'dateszsz':dateszsz}\n",
+    "print('start')\n",
+    "# dfs = query_from_file(file_name='../query/curated_all_attributes_date.sql', params=params)\n",
+    "dfs = query_from_file(file_name='../query/curated_all_attributes_date_dates.sql', params=params)\n",
+    "print(len(dfs))\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "custom_field_df=pd.json_normalize(dfs['custom_fields'])\n",
+    "df=pd.concat([dfs.drop('custom_fields', axis=1), custom_field_df], axis = 1)\n",
+    "print(len(df))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "del df['id']\n",
+    "del df['club']\n",
+    "del df['image']\n",
+    "del df['channel']\n",
+    "del df['buyable']\n",
+    "del df['product_price_club']\n",
+    "del df['clipless_coupon_enddate']\n",
+    "del df['gbi_coupon_is_available']\n",
+    "del df['attribute_value_sequence']\n",
+    "del df['gbi_is_same_day_delivery']\n",
+    "del df['gbi_shipping_is_included']\n",
+    "del df['gbi_club_price_is_visible']\n",
+    "del df['gbi_has_instantSavingsText']\n",
+    "del df['gbi_product_tiny_image_url']\n",
+    "del df['gbi_showpricecartpostlogin']\n",
+    "del df['gbi_product_image_url']\n",
+    "del df['club_id']\n",
+    "del df['clubid_price']\n",
+    "del df['availability']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x=df['attribute'].explode().value_counts().reset_index()\n",
+    "lst=x[x['attribute']>50]#['index'].to_list()\n",
+    "print(len(lst))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "lst"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "length=df[df['attribute'].astype(str)=='length']\n",
+    "pat='''((?<!\\d')(?<!\\.)(?<!\\d'\\s)(?<!\\d)(?:\\d+\\.)?\\d+\"(?=L))|()'''\n",
+    "length['match']=length['gbi_attributes'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "leng=length[length['match'].astype(str)!='[]']\n",
+    "\n",
+    "leng['Q:length']=leng['match'].apply(lambda x: re.sub(r'\"',' in.',str(x))).apply(lambda x: re.sub(r\"\\s?'\\s?\",'\"',str(x)))\n",
+    "print(len(length))\n",
+    "print(len(leng))\n",
+    "# leng[['external_id','value','gbi_attributes','Q:length']]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "height=df[df['attribute'].astype(str)=='height']\n",
+    "pat='''((?<!\\d')(?<!\\.)(?<!\\d'\\s)(?<!\\d)(?:\\d+\\.)?\\d+\"(?=H))|()'''\n",
+    "height['match']=height['gbi_attributes'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "heig=height[height['match'].astype(str)!='[]']\n",
+    "\n",
+    "heig['Q:height']=heig['match'].apply(lambda x: re.sub(r'\"',' in.',str(x))).apply(lambda x: re.sub(r\"\\s?'\\s?\",'\"',str(x)))\n",
+    "print(len(height))\n",
+    "print(len(heig))\n",
+    "# heig[['external_id','value','gbi_attributes','Q:height']]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "width=df[df['attribute'].astype(str)=='width']\n",
+    "pat='''((?<!\\.)(?<!'\\s)(?<!\\d)(?<!')(?:\\d+\\.)?\\d+\"(?=W))|((?<=Item_width'\\:\\s')(?:\\d+\\.)?\\d+\")|()'''\n",
+    "width['match']=width['gbi_attributes'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "wid=width[width['match'].astype(str)!='[]']\n",
+    "\n",
+    "wid['Q:width']=wid['match'].apply(lambda x: re.sub(r'\"',' in.',str(x))).apply(lambda x: re.sub(r\"\\s?'\\s?\",'\"',str(x)))\n",
+    "print(len(width))\n",
+    "print(len(wid))\n",
+    "# wid[['external_id','value','gbi_attributes','Q:width']]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x='''7'2\"'''\n",
+    "sp=x.split(\"'\")\n",
+    "str(int(sp[0])*12+float(sp[1].split('\"')[0]))+' in.'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pat='''(\\d+'\\d+(?:\\.\\d+)?\"(?=W))|()'''\n",
+    "width['match']=width['gbi_attributes'].apply(lambda x: re_extract(pat,str(x)))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "width[width['match'].astype(str)!='[]']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "wid=width[width['match'].astype(str)=='[]']\n",
+    "wid[['external_id','value','gbi_attributes']]\n",
+    "# wid[wid['external_id'].astype(str)=='3000000000001636790']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df[df['attribute'].astype(str)=='length']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df=dfs[dfs['resolution'].astype(str)=='standard']\n",
+    "\n",
+    "def three(usa,reg):\n",
+    "    print('Start')\n",
+    "    trip=fr'''(?i){reg}|()''' \n",
+    "    \n",
+    "    usa['m_name']=usa['product_name'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "    usa['m_desc']=usa['long_desc'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "    usa['m_custom']=usa['custom_fields'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "    main=usa[(usa['m_name'].astype(str)!='[]')]\n",
+    "    middle=usa[(usa['m_name'].astype(str)=='[]')&((usa['m_desc'].astype(str)!='[]')|(usa['m_custom'].astype(str)!='[]'))]\n",
+    "    na=usa[(usa['m_name'].astype(str)=='[]')&(usa['m_desc'].astype(str)=='[]')&(usa['m_custom'].astype(str)=='[]')]\n",
+    "    \n",
+    "    print('')\n",
+    "    print('values: '+str(len(main)))\n",
+    "    print('No name but call outs: '+str(len(middle)))\n",
+    "    print('no values: '+str(len(na)))\n",
+    "    print('')\n",
+    "    return main,middle,na"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# not indoor/outdoor, occasion, setsize, size, \n",
+    "df=dfs[(dfs['attribute'].astype(str)!='keywords')&(dfs['resolution'].astype(str)!='rules')]\n",
+    "print(len(df))\n",
+    "df['attribute'].explode().value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sets=df[df['attribute'].astype(str)=='drop_length']\n",
+    "na=sets[sets['value'].astype(str)=='n/a']\n",
+    "print(len(sets))\n",
+    "print(len(na))\n",
+    "size=sets[sets['value'].astype(str)!='n/a']\n",
+    "print(len(size))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sets['value'].explode().value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pat='''(?i)(drop)'''\n",
+    "x,y,z=three(sets,pat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(z['value'].explode().value_counts())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# print(len(sets[sets['value'].astype(str)!='n/a']))\n",
+    "# sets[sets['value'].astype(str)!='n/a']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "customer_id = '5'\n",
+    "customer_name='%bedbathandbeyond%'\n",
+    "dateszs='2002-08-11'\n",
+    "attribut='shelf_weight_capacity'\n",
+    "curation_col = f'Q:{attribut}'\n",
+    "params = {'customer_id': customer_id,\n",
+    "          'customer_name':customer_name,\n",
+    "         'dateszs':dateszs,\n",
+    "         'attribute':attribut}\n",
+    "\n",
+    "print('start')\n",
+    "dfs = query_from_file(file_name='../query/curated_all_attributes_date_one_attribute.sql', params=params)\n",
+    "print(len(dfs))\n",
+    "dfz=dfs[dfs['resolution'].astype(str)!='rules']\n",
+    "print(len(dfz))\n",
+    "dfh=dfz[dfz['custom_fields'].astype(str)!='None']\n",
+    "# dfz=dfz[dfz['buckets'].astype(str)=='Conduit Fittings, Replacement Parts, & Accessories']\n",
+    "print(len(dfh))\n",
+    "custom_field_df=pd.json_normalize(dfh['custom_fields'])\n",
+    "df=pd.concat([dfh.drop('custom_fields', axis=1), custom_field_df], axis = 1)\n",
+    "print(len(df))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(len(dfs))\n",
+    "na=df[df['value'].astype(str)=='n/a']\n",
+    "print(len(na))\n",
+    "df=df[df['value'].astype(str)!='n/a']\n",
+    "print(len(df))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pat='''(?i)(\\-)|(and)'''\n",
+    "df['match']=df['value'].apply(lambda x: re_extract(pat,str(x)))\n",
+    "val=df[(df['match'].astype(str)=='[]')&(df['external_id'].astype(str)!='nan')]\n",
+    "val['val']=val['value'].apply(lambda x: re.sub(r'(?i)(\\s?lb)|(\\,)|(\\s?in)|(\\.\\d+)','',str(x)))\n",
+    "print(len(val))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import re\n",
+    "\n",
+    "metric='lbs'\n",
+    "range_string = \"\"\"\n",
+    "100 lbs and Greater\n",
+    "1 - 24 lbs\n",
+    "25 - 49 lbs\n",
+    "50 - 74 lbs\n",
+    "75 - 99 lbs\n",
+    " \"\"\"\n",
+    "\n",
+    "range_params = {}\n",
+    "for range_entry in range_string.split('\\n'):\n",
+    "    range_nums = re.findall('\\d+', range_entry)\n",
+    "    if len(range_nums) > 0: \n",
+    "        range_params[tuple(map(int, range_nums))] = range_entry.strip()\n",
+    "\n",
+    "\n",
+    "def  range_app(num_lst):\n",
+    "    updated_labels = []\n",
+    "    for num in num_lst:\n",
+    "        num = float(num)\n",
+    "        for range_param, range_label in range_params.items():\n",
+    "            if len(range_param) == 1:\n",
+    "                if num >= range_param[0]:\n",
+    "                    updated_labels.append(range_label)\n",
+    "            else:\n",
+    "                if num >= range_param[0] and num <= range_param[1]:\n",
+    "                    updated_labels.append(range_label)\n",
+    "    return updated_labels"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "val[curation_col]=val['val'].apply(lambda x: f\"['{x}']\").apply(lambda x: re.sub(r'\\[','[\"',str(x))).apply(lambda x: re.sub(r'\\]','\"]',str(x))).apply(lambda x: re.sub(r',','\",\"',str(x))).apply(lambda x: re.sub(r'\"\"','\"',str(x))).apply(lambda x: re.sub(r\"'\",'',str(x))).apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)])).apply(range_app).apply(lambda x: re.sub(r\"\\['\",'[\"',str(x))).apply(lambda x: re.sub(r\"'\\]\",'\"]',str(x))).apply(lambda x: re.sub(r\"'\\s?,\\s?'\",'\",\"',str(x))).apply(lambda x: re.sub(r\"'\\[\",'[',str(x))).apply(lambda x: re.sub(r\"\\]'\",']',str(x))).apply(lambda x: re.sub(r'\\,\\s',',',str(x))).apply(lambda x: remove_duplicates([n.strip() for n in ast.literal_eval(x)])) .apply(lambda x: re.sub(r\"\\['\",'[\"',str(x))).apply(lambda x: re.sub(r\"'\\]\",'\"]',str(x))).apply(lambda x: re.sub(r\"'\\s?,\\s?'\",'\",\"',str(x))).apply(lambda x: re.sub(r\"'\\[\",'[',str(x))).apply(lambda x: re.sub(r\"\\]'\",']',str(x)))\n",
+    "val[['external_id','value',curation_col]]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "match_shelf=val[['external_id',curation_col]]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_df_name(df):\n",
+    "    name =[x for x in globals() if globals()[x] is df][0]\n",
+    "    return name\n",
+    "def looks_good(customer, matches): \n",
+    "    drive_path = f'G:/Shared drives/GroupBy Public/Customer Success/.Enrich/Platform Upload Trail/{customer}/_Ready For Upload' \n",
+    "    matches.to_csv(f'{drive_path}/Bed Bath & Beyond --{get_df_name(matches)}-match_shelf{today}.csv',index=False) \n",
+    "looks_good('Bed Bath & Beyond',match_shelf)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "shelf=df[df['attribute'].astype(str)=='shelf_weight_capacity']\n",
+    "print(len(shelf))\n",
+    "na=shelf[shelf['value'].astype(str)=='n/a']\n",
+    "print(len(na))\n",
+    "val=shelf[shelf['value'].astype(str)!='n/a']\n",
+    "print(len(val))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "care=df[(df['attribute'].astype(str)=='rug_size')]\n",
+    "print(len(care))\n",
+    "print(len(care[care['value'].astype(str)=='n/a']))\n",
+    "# pat='''(.{0,10}(?:\\d\\'\\s?x\\s?\\d+\\'|\\d+\\'\\s?round|\\d+\\'\\s?rug.?runner|\\d+\\'\\s?square|\\d+\\'\\s?runner).{0,10})'''\n",
+    "# x,y=three(care,pat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# by\n",
+    "((?<!\\d)(?:2)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?\\s?x\\s?(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:2)?)|((?:18|24)(?:\\\\?\")?[^\\w]x[^\\w](?:36)(?:\\\\?\")?)|\n",
+    "((?<!\\d)(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:[45])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6)?)|((?<!\\d)42\\\\?\"\\s?x\\s?66\\\\?\")|\n",
+    "((?<!\\d)(?:[7])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9]|1[0-1])?(?:\\d)?\\s?x\\s?(?:9)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?:[8])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?(?:\\d)?\\s?x\\s?(?:1[0-1])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|((?<!\\d)(?:[7])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9]|1[0-1])?(?:\\d)?\\s?x\\s?(?:1[0-1])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|((?<!\\d)(?:[8])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?(?:\\d)?\\s?x\\s?(?:9)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9])?)|                      \n",
+    "((?<!\\d)(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:7)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6|9)?)|((?<!\\d)(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:8)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|\n",
+    "((?<!\\d)(?:4)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:5|6)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6)?(?:\\d)?\\s?x\\s?(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6)?)|((?<!\\d)(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:11)?(?:\\d)?\\s?x\\s?(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:11|7)?)|    \n",
+    "((?<!\\d)(?:6)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:9|8)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|\n",
+    "((?<!\\d)(?:7)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:9)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|\n",
+    "((?<!\\d)(?:10)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:14|13)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-5])?)|\n",
+    "((?<!\\d)(?:12)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:15)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-5])?)|"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# round\n",
+    "((?<!\\d)(?:3)\\'?[^\\w]?x[^\\w]?(?:3)\\'?)|((?:3)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)3'?\\s?[0-7][^\\w]?x[^\\w]?3'?\\s?[0-7])|(3'?\\s?x\\s?(?:round|square))|\n",
+    "((?<!\\d)(?:4)\\'?[^\\w]?x[^\\w]?(?:4)\\'?)|((?:4)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)4'?\\s?[0-7][^\\w]?x[^\\w]?4'?\\s?[0-7])|(4'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'4'')|\n",
+    "((?<!\\d)(?:5)\\'?[^\\w]?x[^\\w]?(?:5)\\'?)|((?:5)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)5'?\\s?[0-7][^\\w]?x[^\\w]?5'?\\s?[0-7])|(5'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'5'')|\n",
+    "((?<!\\d)(?:6)\\'?[^\\w]?x[^\\w]?(?:6)\\'?)|((?:6)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)6'?\\s?[0-7][^\\w]?x[^\\w]?6'?\\s?[0-7])|(6'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'6'')|\n",
+    "((?<!\\d)(?:7)\\'?[^\\w]?x[^\\w]?(?:7)\\'?)|((?:7)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)7'?\\s?[0-7][^\\w]?x[^\\w]?7'?\\s?[0-7])|(7'?\\s?x\\s?(?:round|square))(sku.?size\\'\\:\\s?\\'7'')|\n",
+    "((?<!\\d)(?:8)\\'?[^\\w]?x[^\\w]?(?:8)\\'?)|((?:8)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)8'?\\s?[0-7][^\\w]?x[^\\w]?8'?\\s?[0-7])|(8'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'8'')|\n",
+    "((?<!\\d)(?:9)\\'?[^\\w]?x[^\\w]?(?:9)\\'?)|((?:9)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)9'?\\s?[0-7][^\\w]?x[^\\w]?9'?\\s?[0-7])|(9'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'9'')|"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# runner\n",
+    "((?<!\\d)(?:4)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:4)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:4)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:5)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:5)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:5)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:6)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:6)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:6)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:7)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:7)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:7)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:8)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:8)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:8)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:9)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:9)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:9)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:10)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:10)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:10)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:11)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:11)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:11)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:12)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:12)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:12)\\'?\\s?(?:2)?)|\n",
+    "((?<!\\d)(?:1[3-9])\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:1[3-9])\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:1[3-9])\\'?\\s?(?:2)?)|  "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# N/A "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# (?i)((?<!\\d)(?:3)\\'?[^\\w]?x[^\\w]?(?:3)\\'?)|((?:3)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)3'?\\s?[0-7][^\\w]?x[^\\w]?3'?\\s?[0-7])|(3'?\\s?x\\s?(?:round|square))|((?<!\\d)(?:4)\\'?[^\\w]?x[^\\w]?(?:4)\\'?)|((?:4)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)4'?\\s?[0-7][^\\w]?x[^\\w]?4'?\\s?[0-7])|(4'?\\s?x\\s?(?:round|square))((?<!\\d)(?:5)\\'?[^\\w]?x[^\\w]?(?:5)\\'?)|((?:5)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)5'?\\s?[0-7][^\\w]?x[^\\w]?5'?\\s?[0-7])|(5'?\\s?x\\s?(?:round|square))|((?<!\\d)(?:6)\\'?[^\\w]?x[^\\w]?(?:6)\\'?)|((?:6)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)6'?\\s?[0-7][^\\w]?x[^\\w]?6'?\\s?[0-7])|(6'?\\s?x\\s?(?:round|square))|((?<!\\d)(?:7)\\'?[^\\w]?x[^\\w]?(?:7)\\'?)|((?:7)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)7'?\\s?[0-7][^\\w]?x[^\\w]?7'?\\s?[0-7])|(7'?\\s?x\\s?(?:round|square))|((?<!\\d)(?:8)\\'?[^\\w]?x[^\\w]?(?:8)\\'?)|((?:8)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)8'?\\s?[0-7][^\\w]?x[^\\w]?8'?\\s?[0-7])|(8'?\\s?x\\s?(?:round|square))|((?<!\\d)(?:9)\\'?[^\\w]?x[^\\w]?(?:9)\\'?)|((?:9)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)9'?\\s?[0-7][^\\w]?x[^\\w]?9'?\\s?[0-7])|(9'?\\s?x\\s?(?:round|square))|((?<!\\d)(?:2)\\'?(?:\\s)?(?:[0-6])?\\s?x\\s?(?:3)\\'?(?:\\s)?(?:2)?)|((?<!\\d)(?:3)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:[45])\\'?(?:\\s)?(?:6)?)|((?<!\\d)42\\\\?\"\\s?x\\s?66\\\\?\")|((?<!\\d)(?:[7])\\'?(?:\\s)?(?:[6-9]|1[0-1])?(?:\\d)?\\s?x\\s?(?:9)\\'?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?:[8])\\'?(?:\\s)?(?:0)?(?:\\d)?\\s?x\\s?(?:1[0-1])\\'?(?:\\s)?(?:0)?)|((?<!\\d)(?:[7])\\'?(?:\\s)?(?:[6-9]|1[0-1])?(?:\\d)?\\s?x\\s?(?:1[0-1])\\'?(?:\\s)?(?:0)?)|((?<!\\d)(?:[8])\\'?(?:\\s)?(?:0)?(?:\\d)?\\s?x\\s?(?:9)\\'?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?:5)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:7)\\'?(?:\\s)?(?:6|9)?)|((?<!\\d)(?:5)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:8)\\'?(?:\\s)?(?:0)?)|((?<!\\d)(?:4)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:5|6)\\'?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?:3)\\'?(?:\\s)?(?:6)?(?:\\d)?\\s?x\\s?(?:5)\\'?(?:\\s)?(?:6)?)|((?<!\\d)(?:3)\\'?(?:\\s)?(?:11)?(?:\\d)?\\s?x\\s?(?:5)\\'?(?:\\s)?(?:11|7)?)|((?<!\\d)(?:6)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:9|8)\\'?(?:\\s)?(?:0)?)|((?<!\\d)(?:5)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:7)\\'?(?:\\s)?(?:0|10)?)|((?<!\\d)(?:4)\\'?(?:\\s)?(?:11)?(?:\\d)?\\s?x\\s?(?:7)\\'?(?:\\s)?(?:0|10)?)|((?<!\\d)(?:7)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:9)\\'?(?:\\s)?(?:0)?)|((?<!\\d)(?:9)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:12|13)\\'?(?:\\s)?(?:[0-5])?)|((?<!\\d)(?:10)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:14|13)\\'?(?:\\s)?(?:[0-5])?)|((?<!\\d)(?:12)\\'?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:15)\\'?(?:\\s)?(?:[0-5])?)|((?<!\\d)(?:4)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:4)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:4)\\'?\\s?(?:2)?)|((?<!\\d)(?:5)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:5)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:5)\\'?\\s?(?:2)?)|((?<!\\d)(?:6)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:6)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:6)\\'?\\s?(?:2)?)|((?<!\\d)(?:7)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:7)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:7)\\'?\\s?(?:2)?)|((?<!\\d)(?:8)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:8)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:8)\\'?\\s?(?:2)?)|((?<!\\d)(?:9)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:9)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:9)\\'?\\s?(?:2)?)|((?<!\\d)(?:10)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:10)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:10)\\'?\\s?(?:2)?)|((?<!\\d)(?:11)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:11)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:11)\\'?\\s?(?:2)?)|((?<!\\d)(?:12)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:12)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:12)\\'?\\s?(?:2)?)|((?<!\\d)(?:1[3-9])\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:1[3-9])\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:1[3-9])\\'?\\s?(?:2)?)   \n",
+    "trip=r'''(?i)((?<!\\d)(?:4)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:4)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:4)\\'?\\s?(?:2)?)|((?<!\\d)(?:5)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:5)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:5)\\'?\\s?(?:2)?)|((?<!\\d)(?:6)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:6)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:6)\\'?\\s?(?:2)?)|((?<!\\d)(?:7)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:7)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:7)\\'?\\s?(?:2)?)|((?<!\\d)(?:8)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:8)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:8)\\'?\\s?(?:2)?)|((?<!\\d)(?:9)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:9)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:9)\\'?\\s?(?:2)?)|((?<!\\d)(?:10)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:10)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:10)\\'?\\s?(?:2)?)|((?<!\\d)(?:11)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:11)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:11)\\'?\\s?(?:2)?)|((?<!\\d)(?:12)\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:12)\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:12)\\'?\\s?(?:2)?)|((?<!\\d)(?:1[3-9])\\'\\s?\\d{0,2}\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?:2)\\'?[^\\w]?x[^\\w]?(?:1[3-9])\\'?(?:.{0,10}\\s?[A-z\\/\\s]{0,20}\\s?(?:indoor)?\\s?rug)?)|((?:2)\\'?\\s?(?:7)?[^\\w]?x[^\\w]?(?:1[3-9])\\'?\\s?(?:2)?)|((?<!\\d)(?:3)\\'?[^\\w]?x[^\\w]?(?:3)\\'?)|((?:3)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)3'?\\s?[0-7][^\\w]?x[^\\w]?3'?\\s?[0-7])|(3'?\\s?x\\s?(?:round|square))|((?<!\\d)(?:4)\\'?[^\\w]?x[^\\w]?(?:4)\\'?)|((?:4)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)4'?\\s?[0-7][^\\w]?x[^\\w]?4'?\\s?[0-7])|(4'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'4'')|((?<!\\d)(?:5)\\'?[^\\w]?x[^\\w]?(?:5)\\'?)|((?:5)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)5'?\\s?[0-7][^\\w]?x[^\\w]?5'?\\s?[0-7])|(5'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'5'')|((?<!\\d)(?:6)\\'?[^\\w]?x[^\\w]?(?:6)\\'?)|((?:6)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)6'?\\s?[0-7][^\\w]?x[^\\w]?6'?\\s?[0-7])|(6'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'6'')|((?<!\\d)(?:7)\\'?[^\\w]?x[^\\w]?(?:7)\\'?)|((?:7)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)7'?\\s?[0-7][^\\w]?x[^\\w]?7'?\\s?[0-7])|(7'?\\s?x\\s?(?:round|square))(sku.?size\\'\\:\\s?\\'7'')|((?<!\\d)(?:8)\\'?[^\\w]?x[^\\w]?(?:8)\\'?)|((?:8)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)8'?\\s?[0-7][^\\w]?x[^\\w]?8'?\\s?[0-7])|(8'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'8'')|((?<!\\d)(?:9)\\'?[^\\w]?x[^\\w]?(?:9)\\'?)|((?:9)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)9'?\\s?[0-7][^\\w]?x[^\\w]?9'?\\s?[0-7])|(9'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'9'')|((?<!\\d)(?:2)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?\\s?x\\s?(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:2)?)|((?:18|24)(?:\\\\?\")?[^\\w]x[^\\w](?:36)(?:\\\\?\")?)|((?<!\\d)(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:[45])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6)?)|((?<!\\d)42\\\\?\"\\s?x\\s?66\\\\?\")|((?<!\\d)(?:[7])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9]|1[0-1])?(?:\\d)?\\s?x\\s?(?:9)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?:[8])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?(?:\\d)?\\s?x\\s?(?:1[0-1])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|((?<!\\d)(?:[7])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9]|1[0-1])?(?:\\d)?\\s?x\\s?(?:1[0-1])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|((?<!\\d)(?:[8])(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?(?:\\d)?\\s?x\\s?(?:9)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:7)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6|9)?)|((?<!\\d)(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:8)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|((?<!\\d)(?:4)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:5|6)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6)?(?:\\d)?\\s?x\\s?(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6)?)|((?<!\\d)(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:11)?(?:\\d)?\\s?x\\s?(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:11|7)?)|((?<!\\d)(?:6)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:9|8)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|((?<!\\d)(?:7)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:9)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)|((?<!\\d)(?:10)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:14|13)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-5])?)|((?<!\\d)(?:12)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:15)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-5])?)|()'''\n",
+    "x,y,na=three(care,trip)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "val=x[x['value'].astype(str)=='n/a']\n",
+    "print(len(val))\n",
+    "na=y[y['value'].astype(str)!='n/a']\n",
+    "print(len(na))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "na['value'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# na[(na['value'].astype(str)!=\"5' Round/Square\")]['product_name'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# runners"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# eight_by_ten=care[care['value'].astype(str)==\"4' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\d)(?:7)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\d)(?:2|2\\.25)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?:7)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?:2|2\\.25)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\d)7)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2))?)|((?<!\\.)(?<!\\d)(?:7)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?)?[^\\w]?x[^\\w]?(?<!\\d)(?:2|2\\.25)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|(2\\'\\s?x\\s?7\\')'''                            \n",
+    "four_runner,middle,na=three(care,pat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# print(len(care[care['value'].astype(str)==\"4' Runner\"]))\n",
+    "# print(na['value'].value_counts())\n",
+    "print(len(na[(na['value'].astype(str)=='n/a')]))\n",
+    "na[(na['value'].astype(str)=='n/a')&((na['m_name'].astype(str)!='''[]''')|(na['m_desc'].astype(str)!='''[]''')|(na['m_custom'].astype(str)!='''[]'''))]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# print(len(care[care['value'].astype(str)==\"4' Runner\"]))\n",
+    "# print(middle['value'].value_counts())\n",
+    "# middle[(middle['value'].astype(str)=='n/a')]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# print(len(care[care['value'].astype(str)==\"4' Runner\"]))\n",
+    "# print(four_runner['value'].value_counts())\n",
+    "# four_runner[(four_runner['value'].astype(str)=='n/a')&(four_runner['value'].astype(str)!='''6' Runner''')]['product_name'].value_counts()\n",
+    "# four_runner"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def run(num_one,num_two):        \n",
+    "    pat=fr'''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:{num_one})(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:{num_two})(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:{num_one})(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:{num_two})(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:{num_two}))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:{num_one})(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:{num_two})(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:{num_two})|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:{num_two})'?\\s?x\\s?{num_one}\\'?)'''                        \n",
+    "    print(pat)\n",
+    "\n",
+    "run('4','''2|2\\.25|2'?\\s?0\"?''')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#run('4',2)\n",
+    "print(\"4' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"4' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:4)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:4)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:4)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?4\\'?)'''                            \n",
+    "four_first,four_mid,four_na=three(care,pat)\n",
+    "\n",
+    "print(\"5' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"5' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:5)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:5)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:5)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?5\\'?)'''                            \n",
+    "five_first,five_mid,five_na=three(care,pat)\n",
+    "\n",
+    "print(\"6' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"6' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:6)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:6)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:6)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?6\\'?)'''                            \n",
+    "six_first,six_mid,six_na=three(care,pat)\n",
+    "\n",
+    "print(\"7' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"7' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:7)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:7)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:7)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?7\\'?)'''                            \n",
+    "seven_first,seven_mid,seven_na=three(care,pat)\n",
+    "\n",
+    "print(\"8' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"8' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:8)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:8)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:8)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?8\\'?)'''\n",
+    "eight_first,eight_mid,eight_na=three(care,pat)\n",
+    "\n",
+    "print(\"9' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"9' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:9)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:9)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:9)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?9\\'?)'''                            \n",
+    "nine_first,nine_mid,nine_na=three(care,pat)\n",
+    "\n",
+    "print(\"10' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"10' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:10)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?10\\'?)'''                            \n",
+    "ten_first,ten_mid,ten_na=three(care,pat)\n",
+    "\n",
+    "print(\"11' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"11' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:11)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:11)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:11)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?11\\'?)'''                            \n",
+    "el_first,el_mid,el_na=three(care,pat)\n",
+    "\n",
+    "print(\"12' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"12' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:12)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:12)(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:12)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?12\\'?)'''                            \n",
+    "tw_first,tw_mid,tw_na=three(care,pat)\n",
+    "\n",
+    "print(\"13' Runner\")\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"13' Runner\"]\n",
+    "pat='''((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:1[3-9])(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?\\d(0, 2))?\\s?(?:indoor\\/outdoor|hand.?crafted|hand.?woven|rag|Multicolor.?Rag|rug)?\\s?[^\\w]Runner)|((?<!\\.)(?<!\\')(?<!\\' )(?<!\\d)(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:1[3-9])(?:(?:\\\\?'|\\s?ft\\.?|'[^\\w]foot|'\\s?0\"?))?(?:.(0, 10)\\s?[A-z\\/\\s](0, 20)\\s?(?:indoor)?\\s?rug)?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?[^\\w]?x[^\\w]?(?:(?<!\\')(?<!\\' )(?<!\\d)10)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:2|2\\.25|2'?\\s?0\"?))?)|((?<!\\.)(?<!\\')(?<!\\d)(?<!\\' )(?:1[3-9])(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:7)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?)?[^\\w]?x[^\\w]?(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)\\s?(?:2|2\\.25|2'?\\s?0\"?)|(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot))?)|((?<!\\.)(?<!\\d)(?<!\\')(?<!\\' )(?:2|2\\.25|2'?\\s?0\"?)'?\\s?x\\s?1[3-9]\\'?)'''                            \n",
+    "th_first,th_mid,th_na=three(care,pat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# four_mid#['m_name'].explode().value_counts()\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# by"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def un(num_one,num_two,num_three,num_four):\n",
+    "    pat=f'''(?i)((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})((?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)\\s?(?:{num_two}))?\\[^\\w\\]?x[^\\w]?(?:{num_three}((?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)\\s?(?:{num_four}))?)|()'''\n",
+    "    print(pat)\n",
+    "    \n",
+    "un(2,'[0-6]',3,2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"2x3\")\n",
+    "#un(2,'[0-6]',3,2)\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"2' x 3'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:[6-9]|1[0-1])?[^\\w]?x[^\\w]?(?:{num_two})(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:[6-9])?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:0)?[^\\w]?x[^\\w]?(?:{num_two})(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:0)?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:[6-9]|1[0-1])?[^\\w]?x[^\\w]?(?:{num_two})(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:0)?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:0)?[^\\w]?x[^\\w]?(?:{num_two})(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:[6-9])?)'''                            \n",
+    "by_tt_first,by_tt_mid,by_tt_na=three(care,pat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "by_tt_mid['value'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# by_tt_mid[by_tt_mid['value'].astype(str)==\"3' x 5'\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"2x3\")\n",
+    "# good\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"2' x 3'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:2)((?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)\\s?(?:[0-6]))?\\s?x\\s?(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot|'\\s?0\"?)?\\s?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:18|24)(?:\\\\?\\s?\"|\"|.?inch)?[^\\w]?x[^\\w]?(?:36)(?:\\\\?\\s?\"|\".?inch)?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:36)(?:\\\\?\\s?\"|\".?inch)?[^\\w]?x[^\\w]?(?:18|24)(?:\\\\?\"|\"|.?inch)?[^\\w])|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)2\\s?(?:\\'|\\\\?\")?\\s?x\\s?3\\s?(?:\\'|\\\\?\")?)'''                            \n",
+    "by_tt_first,by_tt_mid,by_tt_na=three(care,pat)\n",
+    "\n",
+    "print(\"3x5\")\n",
+    "#un(3,'[0-6]','[45]',6)\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"3' x 5'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:3)(?:(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?(?:\\s[0-6])?)?[^\\w]?x[^\\w]?(?:[45])(?:(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s?[0-6])?))|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)3\\s?(?:\\'|\\\\?\")?\\s?x\\s?5\\s?(?:\\'|\\\\?\")?)|((?:42)(?:\\\\?\\s?\"|\"|.?inch)?[^\\w]?x[^\\w]?(?:66)(?:\\\\?\\s?\"|\".?inch)?)|([^\\w](?:66)(?:\\\\?\\s?\"|\".?inch)?^\\w]?x[^\\w]?(?:42)(?:\\\\?\\s?\"|\"|.?inch)?[^\\w])'''                            \n",
+    "by_tf_first,by_tf_mid,by_tf_na=three(care,pat)\n",
+    "\n",
+    "print(\"4x6\")\n",
+    "# un(4,'[0-6]','5|6','[6-9]')\n",
+    "# un(3,'6','5','6')\n",
+    "# un(3,'11','5','11|7')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"4' x 6'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:4)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:5|6)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[6-9])?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?\\s?(?:6)\\s?x\\s?(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?\\s?(?:[6-9|1[0-6]]))|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:3)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?\\s?(?:11)(?:\\d)?\\s?x\\s?(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?\\s?(?:11|7))'''                            \n",
+    "by_fx_first,by_fx_mid,by_fx_na=three(care,pat)\n",
+    "\n",
+    "\n",
+    "# print(\"5x7\")\n",
+    "# # un(5,'[0-6]','7','6|9')\n",
+    "# eight_by_ten=x[x['value'].astype(str)==\"5' x 8'\"]\n",
+    "# pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:7)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:6|9)?)'''                            \n",
+    "# by_fe_first,by_two_mid,by_two_na=three(care,pat)\n",
+    "\n",
+    "print(\"5x7\")\n",
+    "#un('5','[0-6]','7','0|10')\n",
+    "# un('4','11','7','0|10')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"5' x 7'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:7)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0|10)?)|((?<!\\d)(?:4)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:11)?(?:\\d)?\\s?x\\s?(?:7)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0|10)?)'''                            \n",
+    "by_fs_first,by_fs_mid,by_fs_na=three(care,pat)\n",
+    "\n",
+    "\n",
+    "print(\"5x8\")\n",
+    "# un(5,'[0-6]','8','0')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"5' x 8'\"]\n",
+    "pat='''((?<!\\d)(?:5)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:8)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)'''                            \n",
+    "by_fe_first,by_two_mid,by_two_na=three(care,pat)\n",
+    "\n",
+    "\n",
+    "print(\"6x9\")\n",
+    "# un(6,'[0-6]','9|8','0')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"6' x 9'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:6)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:9|8)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)'''                            \n",
+    "by_xn_first,by_xn_mid,by_xn_na=three(care,pat)\n",
+    "\n",
+    "# print(\"7x9\")\n",
+    "# #un('[7]','[6-9]|1[0-1]','9','[6-9]')\n",
+    "# # un('[7]','[6-9]|1[0-1]','1[0-1]','0')\n",
+    "# eight_by_ten=x[x['value'].astype(str)==\"8' x 10'\"]\n",
+    "# pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:[7])(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:[6-9]|1[0-1])?[^\\w]?x[^\\w]?(?:9)(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:[6-9])?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:[7])(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:[6-9]|1[0-1])?[^\\w]?x[^\\w]?(?:1[0-1])(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:0)?)'''                                \n",
+    "# by_et_first,by_et_mid,by_et_na=three(care,pat)\n",
+    "\n",
+    "print(\"7x9\")\n",
+    "#un('7','[0-6]','9','0')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"7' x 9'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:7)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:9)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)'''                            \n",
+    "by_sn_first,by_sn_mid,by_sn_na=three(care,pat)\n",
+    "\n",
+    "print(\"8x10\")\n",
+    "# un('[8]','0','1[0-1]','0')\n",
+    "# un('[8]','0','9','[6-9]')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"8' x 10'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:[8])(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:0)?[^\\w]?x[^\\w]?(?:1[0-1])(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:0)?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:[8])(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:0)?[^\\w]?x[^\\w]?(?:9)(?:\\\\?\\s?'|\\s?ft\\.?|\\\\?\\s?\"|[^\\w]foot)?\\s?(?:[6-9])?)'''                                \n",
+    "by_et_first,by_et_mid,by_et_na=three(care,pat)\n",
+    "\n",
+    "print(\"9x12\")\n",
+    "# un('9','[0-6]','12|13','[0-5]')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"9' x 12'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:9)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:12)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:0)?)'''                            \n",
+    "by_nt_first,by_nt_mid,by_nt_na=three(care,pat)\n",
+    "\n",
+    "print(\"10x14\")\n",
+    "#un('10','[0-6]','14|13','[0-5]')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"10' x 14'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:10)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:14|13)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-5])?)'''                            \n",
+    "by_tfou_first,by_tfou_mid,by_tfou_na=three(care,pat)\n",
+    "\n",
+    "print(\"12x15\")\n",
+    "#un('12','[0-6]','15','[0-5]')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"12' x 15'\"]\n",
+    "pat='''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:12)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-6])?(?:\\d)?\\s?x\\s?(?:15)(?:\\\\?'|\\s?ft\\.?|\\\\?\"|[^\\w]foot)?(?:\\s)?(?:[0-5])?)'''                            \n",
+    "by_twfif_first,by_twfif_mid,by_twfif_na=three(care,pat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "by_tfou_first['value'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "by_et_first[by_et_first['value'].astype(str)==\"3' x 5'\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Round/Square"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def roun(num_one,num_two):\n",
+    "    pat=f'''((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})\\s?\\'?[^\\w]?x[^\\w]?(?:{num_one})\\s?\\'?)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})\\s?\\'?\\s?(?:{num_two})?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})\\s?\\'?\\s?{num_two}[^\\w]?x[^\\w]?(?:{num_one})\\s?'?\\s?{num_two})|((?<!\\d)(?<!\\')(?<!'\\s)(?<!\\.)(?:{num_one})\\s?'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'(?:{num_one})'')|(SKU_SIZE[^\\w]{0,4}(?:{num_one})\\s?\\'?(?:{num_two})?\"?\\s?(?:round|square)'''       \n",
+    "    print(pat)\n",
+    "    \n",
+    "roun(8,'[0-7]')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print('three')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"3' Round/Square\"]\n",
+    "pat='''(?i)((?<!\\d)(?:3)\\'?[^\\w]?x[^\\w]?(?:3)\\'?)|((?:3)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)3'?\\s?[0-7][^\\w]?x[^\\w]?3'?\\s?[0-7])|(3'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'3'')|()'''                            \n",
+    "three_round,na_three=three(eight_by_ten,pat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print('three')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"3' Round/Square\"]\n",
+    "pat='''((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:3)\\s?'?[^\\w]?x[^\\w]?(?:3)\\s?'?)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:3)\\s?'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:3)\\s?'?\\s?[0-7][^\\w]?x[^\\w]?(?:3)\\s?'?\\s?[0-7])|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:3)\\s?'?\\s?x\\s?(?:round|square))|(sku.?size'\\:\\s?'(?:3)'')|(SKU_SIZE[^\\w](0, 4)(?:3)\\s?'?(?:[0-7])?\"?\\s?(?:round|square))'''                            \n",
+    "three_round_first,three_round_mid,na_three=three(care,pat)\n",
+    "\n",
+    "print('four')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"4' Round/Square\"]\n",
+    "pat='''((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:4)\\s?'?[^\\w]?x[^\\w]?(?:4)\\s?'?)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:4)\\s?'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:4)\\s?'?\\s?[0-7][^\\w]?x[^\\w]?(?:4)\\s?'?\\s?[0-7])|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:4)\\s?'?\\s?x\\s?(?:round|square))|(sku.?size'\\:\\s?'(?:4)'')|(SKU_SIZE[^\\w](0, 4)(?:4)\\s?'?(?:[0-7])?\"?\\s?(?:round|square))'''                            \n",
+    "four_round,four_round_mid,na_four=three(care,pat)\n",
+    "\n",
+    "print('five')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"5' Round/Square\"]\n",
+    "pat='''((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:5)\\s?'?[^\\w]?x[^\\w]?(?:5)\\s?'?)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:5)\\s?'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:5)\\s?'?\\s?[0-7][^\\w]?x[^\\w]?(?:5)\\s?'?\\s?[0-7])|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:5)\\s?'?\\s?x\\s?(?:round|square))|(sku.?size'\\:\\s?'(?:5)'')|(SKU_SIZE[^\\w](0, 4)(?:5)\\s?'?(?:[0-7])?\"?\\s?(?:round|square))'''                            \n",
+    "five_round,five_round_mid,na_five=three(care,pat)\n",
+    "\n",
+    "print('six')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"6' Round/Square\"]\n",
+    "pat='''((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:6)\\s?'?[^\\w]?x[^\\w]?(?:6)\\s?'?)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:6)\\s?'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:6)\\s?'?\\s?[0-7][^\\w]?x[^\\w]?(?:6)\\s?'?\\s?[0-7])|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:6)\\s?'?\\s?x\\s?(?:round|square))|(sku.?size'\\:\\s?'(?:6)'')|(SKU_SIZE[^\\w](0, 4)(?:6)\\s?'?(?:[0-7])?\"?\\s?(?:round|square))'''                            \n",
+    "six_round,six_round_mid,na_six=three(care,pat)\n",
+    "\n",
+    "print('seven')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"7' Round/Square\"]\n",
+    "pat='''((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:7)\\s?'?[^\\w]?x[^\\w]?(?:7)\\s?'?)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:7)\\s?'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:7)\\s?'?\\s?[0-7][^\\w]?x[^\\w]?(?:7)\\s?'?\\s?[0-7])|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:7)\\s?'?\\s?x\\s?(?:round|square))|(sku.?size'\\:\\s?'(?:7)'')|(SKU_SIZE[^\\w](0, 4)(?:7)\\s?'?(?:[0-7])?\"?\\s?(?:round|square))'''                            \n",
+    "seven_round,seven_round_mid,na_seven=three(care,pat)\n",
+    "\n",
+    "print('eight')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"8' Round/Square\"]\n",
+    "pat='''((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:8)\\s?'?[^\\w]?x[^\\w]?(?:8)\\s?'?)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:8)\\s?'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:8)\\s?'?\\s?[0-7][^\\w]?x[^\\w]?(?:8)\\s?'?\\s?[0-7])|((?<!\\d)(?<!')(?<!'\\s)(?<!\\.)(?:8)\\s?'?\\s?x\\s?(?:round|square))|(sku.?size'\\:\\s?'(?:8)'')|(SKU_SIZE[^\\w](0, 4)(?:8)\\s?'?(?:[0-7])?\"?\\s?(?:round|square))'''                            \n",
+    "eight_round,eight_round_mid,na_eight=three(care,pat)\n",
+    "\n",
+    "print('nine')\n",
+    "eight_by_ten=x[x['value'].astype(str)==\"9' Round/Square\"]\n",
+    "pat='''((?<!\\d)(?:9)\\'?[^\\w]?x[^\\w]?(?:9)\\'?)|((?:9)\\'?\\s?(?:[0-7])?[^\\w]?(?:\\s?half\\s?)?round)|((?<!\\d)9'?\\s?[0-7][^\\w]?x[^\\w]?9'?\\s?[0-7])|(9'?\\s?x\\s?(?:round|square))|(sku.?size\\'\\:\\s?\\'9'')'''                            \n",
+    "nine_round,nine_round_mid,na_nine=three(care,pat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "origin=df[df['attribute'].astype(str)=='origin']\n",
+    "print(len(origin))\n",
+    "origin['curated_date']=pd.to_datetime(origin['curated_date'])\n",
+    "no=origin[(origin['curated_date']>='11-01-2022')&(origin['curated_date']<='11-30-2022')]\n",
+    "nov=no[no['resolution'].astype(str)=='standard']\n",
+    "print(len(nov))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "origin['value'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trip=r'''(?i)(n\\/a)|()''' \n",
+    "nov['values']=nov['value'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "mach=nov[nov['values'].astype(str)!='[]']\n",
+    "print(len(mach))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x,y=three(mach,'''(\\b(?:united.?states|united.?states.?of.?america|USA(?!.glass)(?!opoly)|AMerica|made.?in.?(?:us|u\\.s\\.))\\b)|(imported)|(made.?in.?(?:canada|turkey|china|france|india|germany|italy|the.?uk|poland|malaysia|belgium|vienna|pakistan))|(.{0,10}(?<!hand.)(?<!hand)made(?!.for)(?!.out)(?!.by)(?!.of)(?!.with)(?!.from).{0,10})|(.{0,10}\\busa(?!.glass)\\b.{0,10})''')\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "imp=nov[nov['value'].astype(str)=='Imported']\n",
+    "print(len(imp))\n",
+    "na=nov[nov['value'].astype(str)=='n/a']\n",
+    "print(len(na))\n",
+    "usa=nov[nov['value'].astype(str)=='Made in the USA']\n",
+    "print(len(usa))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "nov['value'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# trip=r'''(?i)(imported)|(made in Canada)|(euro.?sham)|(made.?in)|()''' \n",
+    "trip=r'''(?i)(\\b(?:united.?states|united.?states.?of.?america|USA(?!.glass)(?!opoly)|AMerica|made.?in.?(?:us|u\\.s\\.))\\b)|(imported)|(made.?in.?(?:canada|turkey|china|france|india|germany|italy|the.?uk|poland|malaysia|belgium|vienna|pakistan))|(.{0,10}(?<!hand.)(?<!hand)made(?!.for)(?!.out)(?!.by)(?!.of)(?!.with)(?!.from).{0,10})|(.{0,10}\\busa(?!.glass)\\b.{0,10})|()''' \n",
+    "usa['m_name']=usa['product_name'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "usa['m_desc']=usa['long_desc'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "usa['m_custom']=usa['custom_fields'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "imported=usa[(usa['m_name'].astype(str)!='[]')|(usa['m_desc'].astype(str)!='[]')|(usa['m_custom'].astype(str)!='[]')]\n",
+    "print(len(imported))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# imported#[['external_id','m_name','m_desc','m_custom']][0:500]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "impor=na[(na['m_name'].astype(str)=='[]')&(na['m_desc'].astype(str)=='[]')&(na['m_custom'].astype(str)=='[]')]\n",
+    "print(len(impor))\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "impor['value'].explode().value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "trip=r'''(?i)((.{0,10}(?<!hand.)(?<!hand)made(?!.for)(?!.out)(?!.by)(?!.of)(?!.with)(?!.from).{0,10})|(.{0,10}\\busa(?!.glass)\\b.{0,10}))|()''' \n",
+    "impor['m_name']=impor['product_name'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "print('one')\n",
+    "impor['m_desc']=impor['long_desc'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "print('two')\n",
+    "impor['m_custom']=impor['custom_fields'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "print('three')\n",
+    "im=impor[(impor['m_name'].astype(str)!='[]')|(impor['m_desc'].astype(str)!='[]')|(impor['m_custom'].astype(str)!='[]')]\n",
+    "print(len(im))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(len(im))\n",
+    "im[['external_id','m_name','m_desc','m_custom']][0:500]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "imported['Q:origin']=''\n",
+    "match_na_re_curates=imported[['external_id','Q:origin']]\n",
+    "\n",
+    "def get_df_name(df):\n",
+    "    name =[x for x in globals() if globals()[x] is df][0]\n",
+    "    return name\n",
+    "def looks_good(customer, matches): \n",
+    "    drive_path = f'G:/Shared drives/GroupBy Public/Customer Success/.Enrich/Platform Upload Trail/{customer}/_Ready For Upload' \n",
+    "    matches.to_csv(f'{drive_path}/Bed Bath & Beyond --{get_df_name(matches)}-match_na_re_curates{today}.csv',index=False) \n",
+    "looks_good('Bed Bath & Beyond',match_na_re_curates) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "na=dfs[(dfs['attribute'].astype(str)=='nan')|(dfs['attribute'].astype(str)=='None')]\n",
+    "print(len(na))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "customer_id = '5'\n",
+    "customer_name='%bedbathandbeyond%'\n",
+    "dateszs='2022-08-11'\n",
+    "attribut='size'\n",
+    "params = {'customer_id': customer_id,\n",
+    "          'customer_name':customer_name,\n",
+    "         'dateszs':dateszs,\n",
+    "         'attribute':attribut}\n",
+    "print('start')\n",
+    "dfs = query_from_file(file_name='../query/curated_all_attributes_date_one_attribute.sql', params=params)\n",
+    "print('continuing')\n",
+    "dfs=dfs[dfs['resolution'].astype(str)!='rules']\n",
+    "print('dfs')\n",
+    "dfz=dfs[dfs['custom_fields'].astype(str)!='None']\n",
+    "# dfz=dfz[dfz['buckets'].astype(str)=='Conduit Fittings, Replacement Parts, & Accessories']\n",
+    "print('customs')\n",
+    "custom_field_df=pd.json_normalize(dfz['custom_fields'])\n",
+    "df=pd.concat([dfz.drop('custom_fields', axis=1), custom_field_df], axis = 1)\n",
+    "print(len(df))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "material=df[['attribute','buckets','value','external_id','product_name','long_desc','LONG_DESCRIPTION','gbi_exp_product_type','gbi_syn_product_type','gbi_syn_size','gbi_product_type_affinity','Fill_Material','s_f_Fill_Material','s_f_binFill_Material']]\n",
+    "print(len(material))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trips=\"(?i)(duvet)|()\"\n",
+    "material['d']=material['gbi_exp_product_type'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "material['u']=material['gbi_syn_product_type'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "material['v']=material['gbi_syn_size'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "material['match']=material['long_desc'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "material['matches']=material['LONG_DESCRIPTION'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "\n",
+    "\n",
+    "duvet=material[(material['d'].astype(str)!='[]')|(material['u'].astype(str)!='[]')|(material['v'].astype(str)!='[]')|(material['match'].astype(str)!='[]')|(material['matches'].astype(str)!='[]')]\n",
+    "print(len(duvet))\n",
+    "print(duvet['buckets'].explode().value_counts().reset_index()['index'].to_list())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "del duvet['d']\n",
+    "del duvet['u']\n",
+    "del duvet['v']\n",
+    "# del duvet['e']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fill=duvet[(duvet['external_id'].astype(str)!='nan')&((duvet['Fill_Material'].astype(str)!='nan')|(duvet['s_f_Fill_Material'].astype(str)!='nan')|(duvet['s_f_binFill_Material'].astype(str)!='nan'))]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trips=\"(?i)(.{0,10}fill.?material.{0,10})|()\"\n",
+    "duvet['fill']=duvet['long_desc'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "duvet['fills']=duvet['LONG_DESCRIPTION'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "x=duvet[(duvet['fill'].astype(str)!='[]')|(duvet['fills'].astype(str)!='[]')]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trips=\"(?i)(.{0,10}(?:duvet).{0,10})|()\"\n",
+    "mat['match']=mat['long_desc'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "mat['matches']=mat['product_name'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "duvet=mat[(mat['match'].astype(str)!='[]')|(mat['matches'].astype(str)!='[]')]\n",
+    "duvet=duvet[duvet['value'].astype(str)=='n/a']\n",
+    "print(len(duvet))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# customer_id = '5'\n",
+    "# customer_name='%bedbathandbeyond%'\n",
+    "# dateszs='2022-08-11'\n",
+    "# params = {'customer_id': customer_id,\n",
+    "#           'customer_name':customer_name,\n",
+    "#          'dateszs':dateszs}\n",
+    "# print('start')\n",
+    "# dfs = query_from_file(file_name='../query/curated_all_attributes_date.sql', params=params)\n",
+    "# print('continuing')\n",
+    "# dfs=dfs[dfs['resolution'].astype(str)!='rules']\n",
+    "# print('dfs')\n",
+    "# dfz=dfs[dfs['custom_fields'].astype(str)!='None']\n",
+    "# # dfz=dfz[dfz['buckets'].astype(str)=='Conduit Fittings, Replacement Parts, & Accessories']\n",
+    "# print('customs')\n",
+    "# custom_field_df=pd.json_normalize(dfz['custom_fields'])\n",
+    "# # dfz=dfs[dfs['custom_fields'].astype(str)!='None']\n",
+    "# # # dfz=dfz[dfz['buckets'].astype(str)=='Conduit Fittings, Replacement Parts, & Accessories']\n",
+    "# # custom_field_df=pd.json_normalize(dfz['custom_fields'])\n",
+    "# # fields = ['Set_Size']\n",
+    "# # df = pd.concat([dfz.drop('custom_fields', axis=1), custom_field_df[fields]], axis = 1)\n",
+    "# # print(len(df))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trips=\"(?i)(.{0,10}(?:comforter|duvet|sheets).{0,10})|()\"\n",
+    "df['match']=df['long_desc'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "df['matches']=df['product_name'].apply(lambda x: re_extract(trips,str(x)))\n",
+    "duvet=df[(df['match'].astype(str)!='[]')|(df['matches'].astype(str)!='[]')]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(len(duvet))\n",
+    "duvet_na=duvet[duvet['value'].astype(str)=='n/a']\n",
+    "print(len(duvet_na))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x=duvet_na[(duvet_na['Fill_Material'].astype(str)!='nan')|(duvet_na['s_f_Fill_Material'].astype(str)!='nan')|(duvet_na['s_f_binFill_Material'].astype(str)!='nan')|(duvet_na['s_f_binMaterial'].astype(str)!='nan')]\n",
+    "print(len(x))\n",
+    "x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fields = ['Fill_Material','s_f_Fill_Material','s_f_binFill_Material','s_f_binMaterial']\n",
+    "df = pd.concat([dfz.drop('custom_fields', axis=1), custom_field_df[fields]], axis = 1)\n",
+    "print(len(df))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fill=df[(df['Fill_Material'].astype(str)!='nan')&(df['s_f_Fill_Material'].astype(str)=='nan')&(df['s_f_binFill_Material'].astype(str)=='nan')&(df['s_f_binMaterial'].astype(str)=='nan')]\n",
+    "print(len(fill))\n",
+    "\n",
+    "fills=df[(df['Fill_Material'].astype(str)=='nan')&(df['s_f_Fill_Material'].astype(str)!='nan')&(df['s_f_binFill_Material'].astype(str)=='nan')&(df['s_f_binMaterial'].astype(str)=='nan')]\n",
+    "print(len(fills))\n",
+    "\n",
+    "fillz=df[(df['Fill_Material'].astype(str)=='nan')&(df['s_f_Fill_Material'].astype(str)=='nan')&(df['s_f_binFill_Material'].astype(str)!='nan')&(df['s_f_binMaterial'].astype(str)=='nan')]\n",
+    "print(len(fillz))\n",
+    "\n",
+    "filling=df[(df['Fill_Material'].astype(str)=='nan')&(df['s_f_Fill_Material'].astype(str)=='nan')&(df['s_f_binFill_Material'].astype(str)=='nan')&(df['s_f_binMaterial'].astype(str)!='nan')]\n",
+    "print(len(filling))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# fillings=df[((df['Fill_Material'].astype(str)!='nan')|(df['s_f_Fill_Material'].astype(str)!='nan')|(df['s_f_binFill_Material'].astype(str)!='nan'))&(df['s_f_binMaterial'].astype(str)=='nan')&(df['external_id'].astype(str)!='nan')]\n",
+    "# print(len(fillings))\n",
+    "# fillings\n",
+    "# filling"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# filling['buckets'].explode().value_counts()\n",
+    "# x=filling[filling['buckets'].astype(str)!='nan']\n",
+    "# print(len(x))\n",
+    "# x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trip=r'''(?i)(.{0,20}duvet.{0,20})|(.{0,20}fill.{0,20})|()'''                                                              \n",
+    "fill['matches']=fill['long_desc'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "duvet=fill[fill['matches'].astype(str)!='[]']\n",
+    "duvet#[duvet['s_f_binMaterial'].astype(str)=='''['Cotton Blend']''']\n",
+    "print(len(duvet))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "duvet[duvet['value'].astype(str)=='n/a']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fill_material=df[(df['attribute'].astype(str)=='fill_material')]\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fill_materials=fill_material[(fill_material['Fill_Material'].astype(str)!='nan')|(fill_material['s_f_Fill_Material'].astype(str)!='nan')|(fill_material['s_f_binFill_Material'].astype(str)!='nan')|(fill_material['s_f_binMaterial'].astype(str)!='nan')|(fill_material['Fill_Material'].astype(str)!='nan')]\n",
+    "# del fill_materials ['buckets']\n",
+    "# del fill_materials ['bucket_id']\n",
+    "del fill_materials ['customer_name']\n",
+    "del fill_materials ['curated_date']\n",
+    "del fill_materials ['resolution']\n",
+    "del fill_materials ['curation_tasks.curated_by']\n",
+    "\n",
+    "fill_materials#['value'].explode().value_counts()\n",
+    "\n",
+    "trip=r'''(?i)(duvet)|()'''                                                              \n",
+    "fill_materials['matches']=fill_materials['product_name'].apply(lambda x: re_extract(trip,str(x)))\n",
+    "duvet=fill_materials[fill_materials['matches'].astype(str)!='[]']\n",
+    "duvet#[duvet['s_f_binMaterial'].astype(str)=='''['Cotton Blend']''']\n",
+    "\n",
+    "duvets=duvet[(duvet['s_f_binMaterial'].astype(str)!='nan')&(duvet['s_f_binMaterial'].astype(str)!=\"['Other']\")&(duvet['s_f_binMaterial'].astype(str)!=\"['Modal']\")&(duvet['s_f_binMaterial'].astype(str)!=\"['Cotton Blend']\")]\n",
+    "duvets['Q:fill_material']=duvets['s_f_binMaterial']\n",
+    "\n",
+    "match_duvets=duvets[['external_id','Q:fill_material']]\n",
+    "\n",
+    "def get_df_name(df):\n",
+    "    name =[x for x in globals() if globals()[x] is df][0]\n",
+    "    return name\n",
+    "def looks_good(customer, matches): \n",
+    "    drive_path = f'G:/Shared drives/GroupBy Public/Customer Success/.Enrich/Platform Upload Trail/{customer}/_Ready For Upload' \n",
+    "    matches.to_csv(f'{drive_path}/Bed Bath & Beyond --{get_df_name(matches)}-match_duvets{today}.csv',index=False) \n",
+    "looks_good('Bed Bath & Beyond',match_duvets) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "PythonData",
+   "language": "python",
+   "name": "pythondata"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
